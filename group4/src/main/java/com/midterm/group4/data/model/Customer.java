@@ -1,17 +1,17 @@
 package com.midterm.group4.data.model;
 
-import lombok.Data;
 import jakarta.persistence.*;
+import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "customer")
+@Table(name = "customers")
 @Data
 public class Customer {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID customerId;
 
     @Column(nullable = false)
@@ -28,6 +28,9 @@ public class Customer {
     @Column(nullable = false)
     private boolean isActive;
 
-    @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<Order> orders;
+    @Column(nullable = false)
+    private String phone;
+
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Invoice> invoices;
 }
