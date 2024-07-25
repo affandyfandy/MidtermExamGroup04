@@ -14,6 +14,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,11 +25,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Entity
 @Table(name = "product")
-public class Product{
+public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "productId", updatable = false, nullable = false)
+    @Column(name = "product_id", updatable = false, nullable = false)
     private UUID productId;
 
     @Column(name = "name", length = 200, nullable = false)
@@ -37,16 +38,16 @@ public class Product{
     @Column(name = "price", nullable = false)
     private BigInteger price;
 
-    @Column(name = "isActive", nullable = false)
+    @Column(name = "is_active", nullable = false)
     private boolean isActive;
 
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
 
-    @Column(name = "createdTime", nullable = false)
+    @Column(name = "created_time", nullable = false)
     private LocalDateTime createdTime;
 
-    @Column(name = "updatedTime", nullable = false)
+    @Column(name = "updated_time", nullable = false)
     private LocalDateTime updatedTime;
 
     @OneToMany(mappedBy = "product", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
@@ -57,6 +58,12 @@ public class Product{
         if (productId == null) {
             productId = UUID.randomUUID();
         }
+        createdTime = LocalDateTime.now();
+        updatedTime = LocalDateTime.now();
     }
-    
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedTime = LocalDateTime.now();
+    }
 }
