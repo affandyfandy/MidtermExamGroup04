@@ -42,6 +42,9 @@ public class OrderItem {
     @JoinColumn(name = "productId", nullable = false)
     private Product product;
 
+    @Column(name = "product_id", nullable = false)
+    private UUID productId;
+
     @PrePersist
     protected void onCreate() {
         if (orderItemId == null) {

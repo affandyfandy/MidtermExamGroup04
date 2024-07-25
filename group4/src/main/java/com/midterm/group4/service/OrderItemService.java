@@ -1,7 +1,10 @@
 package com.midterm.group4.service;
 
 import com.midterm.group4.data.model.OrderItem;
+
+import java.util.List;
 import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 
 public interface OrderItemService {
@@ -9,4 +12,6 @@ public interface OrderItemService {
     OrderItem findOrderItemById(UUID id);
     OrderItem createOrderItem(OrderItem orderItem);
     OrderItem updateOrderItem(UUID id, OrderItem orderItem);
+    // OrderItem createOrderItem(OrderItemDTO orderItemDTO);
+    List<OrderItem> findAllByIds(List<UUID> orderItemIds);
 }

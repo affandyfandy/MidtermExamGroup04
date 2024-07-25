@@ -3,8 +3,6 @@ package com.midterm.group4.service.impl;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -12,9 +10,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import com.midterm.group4.data.model.Customer;
-
-import org.apache.coyote.BadRequestException;
+import com.midterm.group4.data.model.OrderItem;
+import com.midterm.group4.service.OrderItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import com.midterm.group4.data.model.Invoice;
-import com.midterm.group4.data.model.OrderItem;
 import com.midterm.group4.data.model.Product;
 import com.midterm.group4.data.repository.InvoiceRepository;
 import com.midterm.group4.data.repository.OrderItemRepository;
@@ -33,7 +29,6 @@ import com.midterm.group4.service.CustomerService;
 import com.midterm.group4.service.InvoiceService;
 import com.midterm.group4.service.ProductService;
 import com.midterm.group4.utils.DocumentUtils;
-import com.midterm.group4.dto.InvoiceMapper;
 
 @Service
 public class InvoiceServiceImpl implements InvoiceService {
@@ -54,6 +49,9 @@ public class InvoiceServiceImpl implements InvoiceService {
     private OrderItemRepository orderItemRepository;
 
     private DocumentUtils documentUtils;
+
+    @Autowired
+    private OrderItemService orderItemService;
 
     @Override
     @Transactional
@@ -274,4 +272,13 @@ public class InvoiceServiceImpl implements InvoiceService {
         orderItemRepository.saveAll(newOrderItems);
         return invoiceRepository.save(invoice);
     }
+
+    // @Override
+    // @Transactional
+    // public BigInteger recalculateTotalAmount(List<UUID> orderItemIds) {
+    //     List<OrderItem> orderItems = orderItemService.findAllByIds(orderItemIds);
+    //     return orderItems.stream()
+    //             .map(orderItem -> orderItem.getAmount().multiply(BigInteger.valueOf(orderItem.getQuantity())))
+    //             .reduce(BigInteger.ZERO, BigInteger::add);
+    // }
 }

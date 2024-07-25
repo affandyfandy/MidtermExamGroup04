@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -73,6 +74,24 @@ public class OrderItemServiceImpl implements OrderItemService{
             orderItemRepository.save(findOrderItem);
         }
         return null;
+    }
+
+    // @Override
+    // @Transactional
+    // public OrderItem createOrderItem(OrderItemDTO orderItemDTO) {
+    //     OrderItem orderItem = new OrderItem();
+    //     // Set properties from DTO
+    //     orderItem.setProductId(orderItemDTO.getProductId());
+    //     orderItem.setQuantity(orderItemDTO.getQuantity());
+    //     orderItem.setAmount(orderItemDTO.getAmount());
+    //     // Save OrderItem
+    //     return orderItemRepository.save(orderItem);
+    // }
+
+    @Override
+    @Transactional
+    public List<OrderItem> findAllByIds(List<UUID> orderItemIds) {
+        return orderItemRepository.findAllById(orderItemIds);
     }
 
     // public Page<OrderItem> getAllOrderItems(Pageable pageable) {
