@@ -8,6 +8,8 @@ import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

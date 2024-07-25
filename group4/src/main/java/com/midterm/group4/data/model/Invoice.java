@@ -6,7 +6,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -39,9 +40,9 @@ public class Invoice {
 
     @ManyToOne
     @JoinColumn(name = "customer_id", nullable = false)
+    @JsonManagedReference
     private Customer customer;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "invoice", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<OrderItem> listOrderItem;
 
