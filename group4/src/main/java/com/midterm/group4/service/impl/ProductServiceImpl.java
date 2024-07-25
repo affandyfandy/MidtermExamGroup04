@@ -1,13 +1,15 @@
 package com.midterm.group4.service.impl;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
-import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import com.midterm.group4.data.model.Product;
 import com.midterm.group4.data.repository.ProductRepository;
@@ -21,45 +23,60 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     @Transactional
-    public void create(Product product) {
-        productRepository.save(product);
+    public Page<Product> findAllSorted(int pageNo, int pageSize, String sortBy, String sortOrder) {
+        Sort sort = Sort.by(Sort.Direction.fromOptionalString(sortOrder).orElse(Sort.Direction.ASC),sortBy);
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        return productRepository.findAll(pageable);
     }
 
     @Override
     @Transactional
-    public void update(Long id, Product dataProduct) {
+    public Product findById(UUID id) {
         Optional<Product> optProduct = productRepository.findById(id);
-        if (optProduct.isPresent()){
-            Product product = optProduct.get();
-            product.setPrice(dataProduct.getPrice());
-            product.setName(dataProduct.getName());
-            product.setQuantity(dataProduct.getQuantity());
-            product.setStock(dataProduct.getStock());
-            product.setUpdatedTime(LocalDateTime.now());
-            productRepository.save(product);
+        if (optProduct.isPresent()) return optProduct.get();
+        return null;
+    }
+
+    @Override
+    @Transactional
+    public Product save(Product product) {
+        return productRepository.save(product);
+    }
+
+    @Override
+    @Transactional
+    public Product update(UUID id, Product product) {
+        Product findProduct = findById(id);
+        if (findProduct != null){
+            findProduct.setName(product.getName());
+            findProduct.setActive(product.isActive());
+            findProduct.setPrice(product.getPrice());
+            findProduct.setQuantity(product.getQuantity());
+            findProduct.setUpdatedTime(product.getUpdatedTime());
+            productRepository.save(findProduct);
+        }
+        return findProduct;
+    }
+
+    @Override
+    @Transactional
+    public void updateStatus(UUID id, boolean status) {
+        Product findProduct = findById(id);
+        if (findProduct != null){
+            findProduct.setActive(status);
         }
     }
 
-    @Override
-    @Transactional
-    public void delete(Long id) {
-        Optional<Product> optProduct = productRepository.findById(id);
-        if (optProduct.isPresent()){
-            Product product = optProduct.get();
-            productRepository.delete(product);
-        }
-    }
+    // @Override
+    // @Transactional
+    // public List<Product> findAllByName(String name, String sortBy, String sortOrder) {
+    //     return productRepository.findAllByName(name, sortBy, sortOrder);
+    // }
 
-    @Override
-    @Transactional
-    public List<Product> findAll() {
-        return productRepository.findAll();
-    }
+    // @Override
+    // @Transactional
+    // public List<Product> findAllByStatus(boolean status, String sortBy, String sortOrder) {
+    //     return productRepository.findAllByStatus(status, sortBy, sortOrder);
+    // }
 
-    @Override
-    @Transactional
-    public List<Product> findAllByName(String name){
-        return productRepository.findByName(name);
-    }
-    
 }

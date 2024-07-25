@@ -1,19 +1,17 @@
 package com.midterm.group4.dto;
 
 import lombok.Data;
-import java.util.List;
-import java.util.UUID;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
-public class ProductDTO {
+public class OrderItemDTO {
+    private UUID orderItemId;
     private UUID productId;
-    private String name;
-    private BigInteger price;
+    private UUID invoiceId;
     private Integer quantity;
-    private boolean isActive;
+    private BigInteger amount;
     private LocalDateTime createdTime;
     private LocalDateTime updatedTime;
-    private List<OrderItemDTO> listOrderItem;
 }

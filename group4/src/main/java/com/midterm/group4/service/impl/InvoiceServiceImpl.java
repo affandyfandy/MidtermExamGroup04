@@ -1,11 +1,14 @@
 package com.midterm.group4.service.impl;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,46 +24,50 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     @Transactional
-    public void create(Invoice invoice) {
-        invoiceRepository.save(invoice);
+    public Page<Invoice> findAllSorted(int pageNo, int pageSize, String sortBy, String sortOrder) {
+        Sort sort = Sort.by(Sort.Direction.fromOptionalString(sortOrder).orElse(Sort.Direction.ASC),sortBy);
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        return invoiceRepository.findAll(pageable);
     }
 
     @Override
     @Transactional
-    public Invoice update(UUID id, Invoice dataInvoice) {
-        Optional<Invoice> optInvoice = invoiceRepository.findById(id);
-        if (optInvoice.isPresent()){
-            Invoice inv = optInvoice.get();
-            inv.setUpdatedTime(LocalDateTime.now());
-            inv.setTotalAmount(dataInvoice.getTotalAmount());
-            invoiceRepository.save(inv);
-        }
-        return invoiceRepository.findById(id).get();
+    public Page<Invoice> findAllByDate(int pageNo, int pageSize, LocalDate sortBy, String sortOrder) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'findAllByDate'");
     }
 
     @Override
     @Transactional
-    public void delete(UUID id) {
-        Optional<Invoice> optInvoice = invoiceRepository.findById(id);
-        if (optInvoice.isPresent()){
-            invoiceRepository.delete(optInvoice.get());
-        }
-    }
-
-    @Override
-    @Transactional
-    public List<Invoice> findAll() {
-        return invoiceRepository.findAll();
+    public Page<Invoice> findAllByMonth(int pageNo, int pageSize, int month, String sortOrder) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'findAllByMonth'");
     }
 
     @Override
     @Transactional
     public Invoice findById(UUID id) {
         Optional<Invoice> optInvoice = invoiceRepository.findById(id);
-        if (optInvoice.isPresent()){
-            return optInvoice.get();
-        }
+        if (optInvoice.isPresent()) return optInvoice.get();
         return null;
     }
-    
+
+    @Override
+    @Transactional
+    public Invoice save(Invoice invoice) {
+        return invoiceRepository.save(invoice);
+    }
+
+    @Override
+    @Transactional
+    public Invoice update(UUID id, Invoice invoice) {
+        Invoice findInvoice = findById(id);
+        if (findInvoice != null){
+            findInvoice.setUpdatedTime(invoice.getUpdatedTime());
+            findInvoice.setTotalAmount(invoice.getTotalAmount());
+            invoiceRepository.save(findInvoice);
+        }
+        return findInvoice;
+    }
+
 }

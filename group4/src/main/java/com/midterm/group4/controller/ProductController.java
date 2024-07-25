@@ -1,16 +1,17 @@
 package com.midterm.group4.controller;
 
+import java.util.UUID;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.midterm.group4.data.model.Product;
-import com.midterm.group4.dto.ProductDto;
+import com.midterm.group4.dto.ProductDTO;
 import com.midterm.group4.dto.ProductMapper;
 import com.midterm.group4.service.ProductService;
-
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,29 +31,47 @@ public class ProductController {
     private ProductMapper productMapper;
 
     @GetMapping
-    public ResponseEntity getAllProducts() {
-        return ResponseEntity.ok(productService.findAll());
+    public ResponseEntity<List<ProductDTO>> getAllProduct(
+        @RequestParam(defaultValue = "0", required = false) int pageNo,
+        @RequestParam(defaultValue = "10", required = false) int pageSize,
+        @RequestParam(defaultValue = "asc", required = false ) String sortOrder,
+        @RequestParam(defaultValue = "name", required = false) String sortBy
+    ) {
+        Page<Product> pageProduct = productService.findAllSorted(pageNo, pageSize, sortBy, sortOrder);
+        return ResponseEntity.status(HttpStatus.OK).body(productMapper.toListDto(pageProduct.getContent()));
     }
 
-    @PostMapping
-    public ResponseEntity addNewProduct(@RequestBody ProductDto productDto) {
-        Product product = productMapper.toEntity(productDto);
-        productService.create(product);
-        return ResponseEntity.ok("Created successful");
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductDTO> getProductById(@PathVariable UUID id) {
+        Product product = productService.findById(id);
+        return ResponseEntity.status(HttpStatus.OK).body(productMapper.toDto(product));
+    }
+
+    @PostMapping("/{id}/activate")
+    public ResponseEntity<ProductDTO> productActivation(@PathVariable UUID id){
+        productService.updateStatus(id, true);
+        Product product = productService.findById(id);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(productMapper.toDto(product));
+    }
+
+    @PostMapping("/{id}/deactivate")
+    public ResponseEntity<ProductDTO> productDeactivate(@PathVariable UUID id){
+        productService.updateStatus(id, false);
+        Product product = productService.findById(id);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(productMapper.toDto(product));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity updateProduct(@PathVariable Long id, @RequestBody ProductDto productDto) {
+    public ResponseEntity<ProductDTO> updateProduct(@PathVariable UUID id, @RequestBody ProductDTO dto){
+        Product product = productMapper.toEntity(dto);
+        Product updatedProduct = productService.update(id, product);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(productMapper.toDto(updatedProduct));
+    }
+    
+    @PostMapping
+    public ResponseEntity<ProductDTO> addNewProduct(@RequestBody ProductDTO productDto) {
         Product product = productMapper.toEntity(productDto);
-        productService.update(id, product);
-        return ResponseEntity.ok("Update successful");
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity deleteProduct(@PathVariable Long id){
-        productService.delete(id);
-        return ResponseEntity.ok("Delete successful");
-    }
-    
-    
+        Product newProduct = productService.save(product);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(productMapper.toDto(newProduct));
+    }    
 }
