@@ -34,4 +34,23 @@ public interface InvoiceRepository extends JpaRepository<Invoice, UUID> {
 
     @Query("SELECT SUM(i.totalAmount) FROM Invoice i WHERE FUNCTION('YEAR', i.invoiceDate) = :year")
     BigInteger findTotalAmountByYear(@Param("year") int year);
+
+    @Query("SELECT i FROM Invoice i WHERE FUNCTION('MONTH', i.invoiceDate) = :month AND FUNCTION('YEAR', i.invoiceDate) = :year")
+    List<Invoice> findByMonthAndYear(int month, int year);
+
+    @Query("SELECT i FROM Invoice i WHERE i.customer.customerId = :customerId AND FUNCTION('MONTH', i.invoiceDate) = :month AND FUNCTION('YEAR', i.invoiceDate) = :year")
+    List<Invoice> findByCustomerAndMonthAndYear(UUID customerId, int month, int year);
+
+    @Query("SELECT i FROM Invoice i WHERE i.customer.customerId = :customerId AND FUNCTION('MONTH', i.invoiceDate) = :month")
+    List<Invoice> findByCustomerAndMonth(UUID customerId, int month);
+
+    @Query("SELECT i FROM Invoice i WHERE i.customer.customerId = :customerId AND FUNCTION('YEAR', i.invoiceDate) = :year")
+    List<Invoice> findByCustomerAndYear(UUID customerId, int year);
+
+    @Query("SELECT i FROM Invoice i WHERE FUNCTION('YEAR', i.invoiceDate) = :year")
+    List<Invoice> findByYear(int year);
+
+    @Query("SELECT i FROM Invoice i WHERE i.customer.customerId = :customerId")
+    List<Invoice> findByCustomer(UUID customerId);
+
 }

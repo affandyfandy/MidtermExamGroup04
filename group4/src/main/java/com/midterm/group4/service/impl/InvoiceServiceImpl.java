@@ -181,4 +181,24 @@ public class InvoiceServiceImpl implements InvoiceService {
                         data -> (BigInteger) data[1]
                 ));
     }
+
+    @Override
+    @Transactional
+    public List<Invoice> getInvoicesByFilter(UUID customerId, Integer month, Integer year) {
+        if (customerId != null && month != null && year != null) {
+            return invoiceRepository.findByCustomerAndMonthAndYear(customerId, month, year);
+        } else if (customerId != null && month != null) {
+            return invoiceRepository.findByCustomerAndMonth(customerId, month);
+        } else if (customerId != null && year != null) {
+            return invoiceRepository.findByCustomerAndYear(customerId, year);
+        } else if (month != null && year != null) {
+            return invoiceRepository.findByMonthAndYear(month, year);
+        } else if (customerId != null) {
+            return invoiceRepository.findByCustomer(customerId);
+        } else if (year != null) {
+            return invoiceRepository.findByYear(year);
+        } else {
+            return invoiceRepository.findAll();
+        }
+    }
 }

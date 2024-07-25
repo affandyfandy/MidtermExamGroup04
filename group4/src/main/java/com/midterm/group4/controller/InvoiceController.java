@@ -2,14 +2,27 @@ package com.midterm.group4.controller;
 
 import com.midterm.group4.data.repository.InvoiceRepository;
 import com.midterm.group4.data.repository.OrderItemRepository;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RestController;
 import com.midterm.group4.data.model.Invoice;
 import com.midterm.group4.dto.InvoiceDTO;
 import com.midterm.group4.dto.InvoiceMapper;
 import com.midterm.group4.service.InvoiceService;
+import com.midterm.group4.service.ExcelExportService;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.LocalDate;
 import java.util.*;
@@ -41,6 +54,9 @@ public class InvoiceController {
 
     @Autowired
     private OrderItemRepository orderItemRepository;
+
+    @Autowired
+    private ExcelExportService excelExportService;
 
     @GetMapping("/sort")
     public ResponseEntity<List<InvoiceDTO>> getAllInvoiceSort(
@@ -157,5 +173,70 @@ public class InvoiceController {
         report.put("Sold Products", soldProducts);
 
         return ResponseEntity.ok(report);
+    }
+
+    @GetMapping("/export")
+    public ResponseEntity<ByteArrayResource> exportInvoicesToExcel(
+            @RequestParam(required = false) UUID customerId,
+            @RequestParam(required = false) Integer month,
+            @RequestParam(required = false) Integer year) throws IOException {
+
+        List<Invoice> invoices = invoiceService.getInvoicesByFilter(customerId, month, year);
+
+        // Create a workbook and sheet
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Invoices");
+
+        // Create header row
+        Row headerRow = sheet.createRow(0);
+        headerRow.createCell(0).setCellValue("Invoice ID");
+        headerRow.createCell(1).setCellValue("Customer ID");
+        headerRow.createCell(2).setCellValue("Customer Name");
+        headerRow.createCell(3).setCellValue("Total Amount");
+        headerRow.createCell(4).setCellValue("Products");
+
+        // Fill data rows
+        int rowNum = 1;
+        for (Invoice invoice : invoices) {
+            Row row = sheet.createRow(rowNum++);
+
+            row.createCell(0).setCellValue(invoice.getInvoiceId().toString());
+            row.createCell(1).setCellValue(invoice.getCustomer().getCustomerId().toString());
+            row.createCell(2).setCellValue(invoice.getCustomer().getFirstName() + " " + invoice.getCustomer().getLastName());
+            row.createCell(3).setCellValue(invoice.getTotalAmount().toString());
+
+            StringBuilder products = new StringBuilder();
+            invoice.getListOrderItem().forEach(orderItem -> {
+                BigDecimal quantity = BigDecimal.valueOf(orderItem.getQuantity());
+                BigDecimal price = new BigDecimal(orderItem.getProduct().getPrice().toString());
+                BigDecimal amount = quantity.multiply(price);
+
+                products.append("ID: ").append(orderItem.getProduct().getProductId().toString())
+                        .append(", Name: ").append(orderItem.getProduct().getName())
+                        .append(", Price: ").append(price.toString())
+                        .append(", Quantity: ").append(quantity.toString())
+                        .append(", Amount: ").append(amount.toString())
+                        .append("; ");
+            });
+            row.createCell(4).setCellValue(products.toString());
+        }
+
+        // Write to byte array output stream
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        workbook.write(outputStream);
+        workbook.close();
+
+        // Create response headers
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=invoices.xlsx");
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+
+        ByteArrayResource resource = new ByteArrayResource(outputStream.toByteArray());
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentLength(outputStream.size())
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(resource);
     }
 }
