@@ -3,6 +3,7 @@ package com.midterm.group4.controller;
 import com.midterm.group4.data.model.Customer;
 import com.midterm.group4.dto.CustomerDTO;
 import com.midterm.group4.dto.CustomerMapper;
+import com.midterm.group4.exception.ObjectNotFoundException;
 import com.midterm.group4.service.CustomerService;
 import java.util.List;
 import java.util.UUID;
@@ -25,7 +26,7 @@ public class CustomerController {
     private CustomerMapper customerMapper;
 
     @GetMapping
-    public ResponseEntity<List<CustomerDTO>> getAllCustomers(
+    public ResponseEntity<List<CustomerDTO>> getAllCustomers (
         @RequestParam(defaultValue = "0", required = false) int page,
         @RequestParam(defaultValue = "10", required = false) int size) {
         Page<Customer> pageCustomer = customerService.findAll(page, size);
@@ -34,20 +35,20 @@ public class CustomerController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CustomerDTO> getCustomerById(@PathVariable UUID id) {
+    public ResponseEntity<CustomerDTO> getCustomerById(@PathVariable UUID id) throws ObjectNotFoundException{
         Customer customer = customerService.findById(id);
         return ResponseEntity.status(HttpStatus.OK).body(customerMapper.toDto(customer));
     }
 
     @PostMapping("/{id}/activate")
-    public ResponseEntity<CustomerDTO> customerActivation(@PathVariable UUID id){
+    public ResponseEntity<CustomerDTO> customerActivation(@PathVariable UUID id) throws ObjectNotFoundException{
         customerService.updateStatus(id, true);
         Customer customer = customerService.findById(id);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(customerMapper.toDto(customer));
     }
 
     @PostMapping("/{id}/deactivate")
-    public ResponseEntity<CustomerDTO> customerDeactivation(@PathVariable UUID id){
+    public ResponseEntity<CustomerDTO> customerDeactivation(@PathVariable UUID id) throws ObjectNotFoundException{
         customerService.updateStatus(id, false);
         Customer customer = customerService.findById(id);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(customerMapper.toDto(customer));
