@@ -1,6 +1,7 @@
 package com.midterm.group4.data.repository;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -20,4 +21,7 @@ public interface InvoiceRepository extends JpaRepository<Invoice, UUID> {
 
     @Query("SELECT i FROM Invoice i WHERE FUNCTION('MONTH', i.invoiceDate) = :month")
     Page<Invoice> findByMonth(@Param("month") int month, Pageable pageable);
+
+    @Query("SELECT i FROM Invoice i WHERE i.customer.firstName LIKE %:customerName% OR i.customer.lastName LIKE %:customerName%")
+    List<Invoice> findByCustomerNameContaining(@Param("customerName") String customerName);
 }

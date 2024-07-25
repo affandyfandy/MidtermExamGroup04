@@ -1,5 +1,6 @@
 package com.midterm.group4.controller;
 
+import org.springframework.data.domain.PageImpl;
 import org.springframework.web.bind.annotation.RestController;
 import com.midterm.group4.data.model.Invoice;
 import com.midterm.group4.dto.InvoiceDTO;
@@ -71,6 +72,22 @@ public class InvoiceController {
         return ResponseEntity.status(HttpStatus.OK).body(invoiceMapper.toListDto(pageInvoice.getContent()));
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<InvoiceDTO>> getInvoiceByCustomerName(
+            @RequestParam(defaultValue = "0", required = false) int pageNo,
+            @RequestParam(defaultValue = "10", required = false) int pageSize,
+            @RequestParam(defaultValue = "asc", required = false ) String sortOrder,
+            @RequestParam(required = true) String customerName
+    ) {
+        Page<Invoice> pageInvoice;
+        if (customerName != null && !customerName.isEmpty()) {
+            List<Invoice> invoices = invoiceService.findByCustomerName(customerName);
+            pageInvoice = new PageImpl<>(invoices); // Convert to Page if needed
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null); // Invalid request if neither is provided
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(invoiceMapper.toListDto(pageInvoice.getContent()));
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<InvoiceDTO> getInvoiceById(@PathVariable UUID id) {

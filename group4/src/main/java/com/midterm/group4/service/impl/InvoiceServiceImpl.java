@@ -116,4 +116,10 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoice.setCustomer(customer);
         return invoiceRepository.save(invoice);
     }
+
+    @Override
+    @Transactional
+    public List<Invoice> findByCustomerName(String customerName) {
+        return invoiceRepository.findByCustomerNameContaining(customerName);
+    }
 }

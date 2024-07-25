@@ -4,6 +4,7 @@ import com.midterm.group4.data.model.Invoice;
 import com.midterm.group4.data.model.OrderItem;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 import com.midterm.group4.dto.InvoiceDTO;
@@ -19,5 +20,6 @@ public interface InvoiceService {
     Invoice save(Invoice invoice);
     Invoice update(UUID id, Invoice product);
     Invoice createInvoice(InvoiceDTO invoiceDto);
+    List<Invoice> findByCustomerName(String customerName);
     // byte[] generateToPdf(UUID id);
 }
