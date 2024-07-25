@@ -28,25 +28,25 @@ public class Product{
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "productId", updatable = false, nullable = false)
+    @Column(updatable = false, nullable = false)
     private UUID productId;
 
-    @Column(name = "name", length = 200, nullable = false)
+    @Column(length = 200, nullable = false)
     private String name;
 
-    @Column(name = "price", nullable = false)
+    @Column(nullable = false)
     private BigInteger price;
 
-    @Column(name = "isActive", nullable = false)
-    private boolean isActive = true;
+    @Column(nullable = false)
+    private boolean isActive;
 
-    @Column(name = "quantity", nullable = false)
+    @Column(nullable = false)
     private Integer quantity;
 
-    @Column(name = "createdTime", nullable = false)
+    @Column(nullable = false)
     private LocalDateTime createdTime;
 
-    @Column(name = "updatedTime", nullable = false)
+    @Column(nullable = false)
     private LocalDateTime updatedTime;
 
     @OneToMany(mappedBy = "product", fetch = FetchType.EAGER, cascade = CascadeType.ALL)

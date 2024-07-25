@@ -14,12 +14,11 @@ import com.midterm.group4.data.model.OrderItem;
 
 @Mapper(componentModel = "spring", uses = {OrderItemMapper.class})
 public interface InvoiceMapper {
-    @Mapping(target = "customerId", ignore = true )
+    @Mapping(target = "customerId", source = "customer.customerId" )
     InvoiceDTO toDto(Invoice invoice);
 
     List<InvoiceDTO> toListDto(List<Invoice> listInvoices);
 
     @Mapping(target = "customer.customerId", source = "customerId" )
-    @Mapping(target = "invoiceId", ignore = true )
     Invoice toEntity(InvoiceDTO invoiceDto);
 }

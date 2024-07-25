@@ -1,7 +1,11 @@
 package com.midterm.group4.service.impl;
 
+import com.midterm.group4.service.InvoiceService;
 import com.midterm.group4.service.OrderItemService;
+import com.midterm.group4.service.ProductService;
+import com.midterm.group4.data.model.Invoice;
 import com.midterm.group4.data.model.OrderItem;
+import com.midterm.group4.data.model.Product;
 import com.midterm.group4.data.repository.OrderItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -10,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigInteger;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -18,6 +23,12 @@ public class OrderItemServiceImpl implements OrderItemService{
     
     @Autowired
     private OrderItemRepository orderItemRepository;
+
+    @Autowired
+    private ProductService productService;
+
+    @Autowired
+    private InvoiceService invoiceService;
 
     @Override
     @Transactional
@@ -37,10 +48,16 @@ public class OrderItemServiceImpl implements OrderItemService{
     @Override
     @Transactional
     public OrderItem createOrderItem(OrderItem orderItem) {
+        Product product = productService.findById(orderItem.getProduct().getProductId());
+        // Invoice invoice = invoiceService.findById(orderItem.getInvoice().getInvoiceId());
+        orderItem.setProduct(product);
+        // orderItem.setInvoice(invoice);
         BigInteger qty = BigInteger.valueOf(orderItem.getQuantity());
         BigInteger price = orderItem.getProduct().getPrice();
         BigInteger amount = price.multiply(qty);
         orderItem.setAmount(amount);
+        orderItem.setCreatedTime(LocalDateTime.now());
+        orderItem.setUpdatedTime(LocalDateTime.now());
         return orderItemRepository.save(orderItem);
     }
 

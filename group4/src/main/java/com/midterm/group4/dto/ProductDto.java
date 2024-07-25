@@ -13,7 +13,7 @@ public class ProductDTO {
     private BigInteger price;
     private Integer quantity;
     private boolean isActive;
-    private LocalDateTime createdTime = LocalDateTime.now();
-    private LocalDateTime updatedTime = LocalDateTime.now();
+    private LocalDateTime createdTime;
+    private LocalDateTime updatedTime;
     private List<OrderItemDTO> listOrderItem;
 }

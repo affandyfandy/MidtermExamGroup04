@@ -35,7 +35,7 @@ public class InvoiceController {
         @RequestParam(defaultValue = "0", required = false) int pageNo,
         @RequestParam(defaultValue = "10", required = false) int pageSize,
         @RequestParam(defaultValue = "asc", required = false ) String sortOrder,
-        @RequestParam(defaultValue = "name", required = false) String sortBy
+        @RequestParam(defaultValue = "createdTime", required = false) String sortBy
     ) {
         Page<Invoice> pageInvoice = invoiceService.findAllSorted(pageNo, pageSize, sortBy, sortOrder);
         return ResponseEntity.status(HttpStatus.OK).body(invoiceMapper.toListDto(pageInvoice.getContent()));

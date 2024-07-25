@@ -4,6 +4,8 @@ import com.midterm.group4.dto.OrderItemDTO;
 import com.midterm.group4.dto.OrderItemMapper;
 import com.midterm.group4.data.model.OrderItem;
 import com.midterm.group4.service.OrderItemService;
+import com.midterm.group4.service.ProductService;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -22,6 +24,8 @@ public class OrderItemController {
 
     @Autowired
     private OrderItemMapper orderItemMapper;
+
+    @Autowired ProductService productService;
 
     @GetMapping
     public ResponseEntity<List<OrderItemDTO>> getAllOrderItems(

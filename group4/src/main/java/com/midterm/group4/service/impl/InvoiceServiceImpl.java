@@ -2,6 +2,7 @@ package com.midterm.group4.service.impl;
 
 import java.math.BigInteger;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -64,6 +65,8 @@ public class InvoiceServiceImpl implements InvoiceService {
             totalAmount.add(order.getAmount());
         }
         invoice.setTotalAmount(totalAmount);
+        invoice.setCreatedTime(LocalDateTime.now());
+        invoice.setUpdatedTime(LocalDateTime.now());
         return invoiceRepository.save(invoice);
     }
 
@@ -78,5 +81,12 @@ public class InvoiceServiceImpl implements InvoiceService {
         }
         return findInvoice;
     }
+
+    // @Override
+    // @Transactional
+    // public void updateOrder(Invoice invoice, OrderItem orderItem){
+    //     List<OrderItem> listOrderItem = invoice.getListOrderItem();
+
+    // }
 
 }

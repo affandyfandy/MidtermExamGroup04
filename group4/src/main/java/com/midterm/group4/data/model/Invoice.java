@@ -31,19 +31,19 @@ public class Invoice {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "invoiceId")
+    @Column
     private UUID invoiceId;
 
-    @Column(name = "totalAmount", nullable = false)
+    @Column(nullable = false)
     private BigInteger totalAmount;
 
-    @Column(name = "date", nullable = false)
-    private LocalDate date;
+    @Column(nullable = false)
+    private LocalDate invoiceDate;
 
-    @Column(name = "createdTime", nullable = false)
+    @Column(nullable = false)
     private LocalDateTime createdTime;
 
-    @Column(name = "updatedTime", nullable = false)
+    @Column(nullable = false)
     private LocalDateTime updatedTime;
 
     @ManyToOne
@@ -53,11 +53,11 @@ public class Invoice {
     @OneToMany(mappedBy = "invoice", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<OrderItem> listOrderItem;
 
-    @PrePersist
-    protected void onCreate() {
-        if (invoiceId == null) {
-            invoiceId = UUID.randomUUID();
-        }
-    }
+    // @PrePersist
+    // protected void onCreate() {
+    //     if (invoiceId == null) {
+    //         invoiceId = UUID.randomUUID();
+    //     }
+    // }
 
 }
