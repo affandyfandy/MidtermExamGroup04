@@ -1,5 +1,8 @@
 package com.midterm.group4.service.impl;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -41,6 +44,10 @@ public class ProductServiceImpl implements ProductService{
     @Override
     @Transactional
     public Product save(Product product) {
+        product.setActive(true);
+        product.setListOrderItem(new ArrayList<>());
+        product.setCreatedTime(LocalDateTime.now());
+        product.setUpdatedTime(LocalDateTime.now());
         return productRepository.save(product);
     }
 
@@ -50,10 +57,8 @@ public class ProductServiceImpl implements ProductService{
         Product findProduct = findById(id);
         if (findProduct != null){
             findProduct.setName(product.getName());
-            findProduct.setActive(product.isActive());
             findProduct.setPrice(product.getPrice());
             findProduct.setQuantity(product.getQuantity());
-            findProduct.setUpdatedTime(product.getUpdatedTime());
             productRepository.save(findProduct);
         }
         return findProduct;
@@ -65,6 +70,8 @@ public class ProductServiceImpl implements ProductService{
         Product findProduct = findById(id);
         if (findProduct != null){
             findProduct.setActive(status);
+            findProduct.setUpdatedTime(LocalDateTime.now());
+            productRepository.save(findProduct);
         }
     }
 
@@ -90,36 +97,10 @@ public class ProductServiceImpl implements ProductService{
         }
     }
 
-
-    // @Override
-    // @Transactional
-    // public Page<Product> findAllByName(int pageNo, int pageSize, String sortBy, String sortOrder, String name) {
-    //     Sort.Direction direction = "desc".equalsIgnoreCase(sortOrder) ? Sort.Direction.DESC : Sort.Direction.ASC;
-    //     Sort sort = Sort.by(direction,sortBy);
-    //     Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
-    //     return productRepository.findAllByName(name, pageable);
-    // }
-
-    // @Override
-    // @Transactional
-    // public Page<Product> findAllByStatus(int pageNo, int pageSize, String sortBy, String sortOrder, boolean status) {
-    //     Sort.Direction direction = "desc".equalsIgnoreCase(sortOrder) ? Sort.Direction.DESC : Sort.Direction.ASC;
-    //     Sort sort = Sort.by(direction,sortBy);
-    //     Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
-    //     int statusInt = status ? 1 : 0;
-    //     return productRepository.findAllByStatus(statusInt, pageable);
-    // }
-
-    // @Override
-    // @Transactional
-    // public List<Product> findAllByName(String name, String sortBy, String sortOrder) {
-    //     return productRepository.findAllByName(name, sortBy, sortOrder);
-    // }
-
-    // @Override
-    // @Transactional
-    // public List<Product> findAllByStatus(boolean status, String sortBy, String sortOrder) {
-    //     return productRepository.findAllByStatus(status, sortBy, sortOrder);
-    // }
+    @Override
+    @Transactional
+    public List<Product> saveAll(List<Product> products) {
+        return productRepository.saveAll(products);
+    }
 
 }

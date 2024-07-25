@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://thymeleaf.org">
+  <head>
+    <meta charset="utf-8">
+    <title>Invoice</title>
+    <object th:include="~{fragments/common :: css}" th:remove="tag"></object>
+    <object th:include="~{fragments/common :: js}" th:remove="tag"></object>
+  </head>
+  <body>
+    <header class="clearfix">
+      <h1>INVOICE</h1>
+      <div id="project">
+        <div><span>CUSTOMER</span> <span th:text="${invoice.customer.firstName + ' ' + invoice.customer.lastName}"></span></div>
+        <div><span>PHONE</span> <span th:text="${invoice.customer.phone}"></span></div>
+        <div><span>DATE</span><span th:text="${invoice.invoiceDate}"></span></div>
+        <div><span>ISSUED</span><span th:text="${currentDate}"></span></div>
+      </div>
+    </header>
+    <main>
+      <table>
+        <thead>
+          <tr>
+            <th class="service">NO</th>
+            <th class="desc">PRODUCT NAME</th>
+            <th>PRICE</th>
+            <th>QTY</th>
+            <th>TOTAL</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="order, iterationStatus: ${listOrderItem}">
+            <td class="service" th:text="${iterationStatus.count}">#</td>
+            <td class="desc" th:text="${order.product.name}"></td>
+            <td class="unit" th:text="${'Rp'+order.product.price}"></td>
+            <td class="qty" th:text="${order.quantity}"></td>
+            <td class="total" th:text="${'Rp'+order.amount}"></td>
+          </tr>
+          <tr>
+            <td colspan="4">TOTAL AMOUNT</td>
+            <td class="total" th:text="${'Rp'+invoice.totalAmount}"></td>
+          </tr>
+          <tr>
+            <td colspan="4">DISC</td>
+            <td class="total">0</td>
+          </tr>
+          <tr>
+            <td colspan="4" class="grand total">GRAND TOTAL</td>
+            <td class="grand total" th:text="${'Rp'+invoice.totalAmount}"></td>
+          </tr>
+        </tbody>
+      </table>
+      <div id="notices">
+        <div>NOTICE:</div>
+        <div class="notice">A finance charge of 1.5% will be made on unpaid balances after 30 days.</div>
+      </div>
+    </main>
+    <footer>
+      Invoice was created on a computer and is valid without the signature and seal.
+    </footer>
+  </body>
+</html>

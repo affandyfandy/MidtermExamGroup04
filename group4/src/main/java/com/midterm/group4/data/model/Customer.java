@@ -12,7 +12,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PostUpdate;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -27,26 +29,26 @@ public class Customer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "customerId")
+    @Column
     private UUID customerId;
 
-    @Column(name = "phone", length = 12, nullable = false)
+    @Column(length = 12, nullable = false)
     private String phone;
 
-    @Column(name = "firstName", length = 100, nullable = false)
+    @Column(length = 100, nullable = false)
     private String firstName;
 
-    @Column(name = "lastName", length = 100, nullable = false)
+    @Column(length = 100, nullable = false)
     private String lastName;
 
-    @Column(name = "createdTime", nullable = false)
+    @Column(nullable = false)
     private LocalDateTime createdTime;
 
-    @Column(name = "updatedTime", nullable = false)
+    @Column(nullable = false)
     private LocalDateTime updatedTime;
 
-    @Column(name = "isActive")
-    private boolean isActive = true;
+    @Column(nullable = false)
+    private boolean isActive;
 
     @OneToMany(mappedBy = "customer", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Invoice> listInvoice;
@@ -56,5 +58,12 @@ public class Customer {
         if (customerId == null) {
             customerId = UUID.randomUUID();
         }
+        createdTime = LocalDateTime.now();
+        updatedTime = LocalDateTime.now();
+    }
+
+    @PostUpdate
+    protected void onUpdate() {
+        updatedTime = LocalDateTime.now();
     }
 }

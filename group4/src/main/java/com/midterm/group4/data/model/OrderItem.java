@@ -17,23 +17,23 @@ public class OrderItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "orderItemId", updatable = false, nullable = false)
+    @Column(updatable = false, nullable = false)
     private UUID orderItemId;
 
-    @Column(name = "quantity", nullable = false)
+    @Column(nullable = false)
     private Integer quantity;
 
-    @Column(name = "amount", nullable = false)
+    @Column(nullable = false)
     private BigInteger amount;
 
-    @Column(name = "createdTime", nullable = false)
+    @Column(nullable = false)
     private LocalDateTime createdTime;
 
-    @Column(name = "updatedTime", nullable = false)
+    @Column(nullable = false)
     private LocalDateTime updatedTime;
 
     @ManyToOne
-    @JoinColumn(name = "invoiceId", nullable = false)
+    @JoinColumn(name = "invoiceId")
     private Invoice invoice;
 
     @ManyToOne
@@ -45,5 +45,12 @@ public class OrderItem {
         if (orderItemId == null) {
             orderItemId = UUID.randomUUID();
         }
+        createdTime = LocalDateTime.now();
+        updatedTime = LocalDateTime.now();
+    }
+    
+    @PostUpdate
+    protected void onUpdate() {
+        updatedTime = LocalDateTime.now();
     }
 }
