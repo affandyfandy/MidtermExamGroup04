@@ -1,6 +1,8 @@
 package com.midterm.group4.service.impl;
 
+import java.math.BigInteger;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.midterm.group4.data.model.Invoice;
+import com.midterm.group4.data.model.OrderItem;
 import com.midterm.group4.data.repository.InvoiceRepository;
 import com.midterm.group4.service.InvoiceService;
 
@@ -55,6 +58,12 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Override
     @Transactional
     public Invoice save(Invoice invoice) {
+        List<OrderItem> listOrderItem = invoice.getListOrderItem();
+        BigInteger totalAmount = BigInteger.valueOf(0);
+        for (OrderItem order : listOrderItem){
+            totalAmount.add(order.getAmount());
+        }
+        invoice.setTotalAmount(totalAmount);
         return invoiceRepository.save(invoice);
     }
 

@@ -1,5 +1,6 @@
 package com.midterm.group4.service.impl;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -88,6 +89,12 @@ public class ProductServiceImpl implements ProductService{
         } else {
             return productRepository.findAll(pageable);
         }
+    }
+
+    @Override
+    @Transactional
+    public List<Product> saveAll(List<Product> products) {
+        return productRepository.saveAll(products);
     }
 
 

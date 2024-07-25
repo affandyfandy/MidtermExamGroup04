@@ -16,5 +16,4 @@ public interface CustomerMapper {
     Customer toEntity(CustomerDTO dto);
     
     CustomerDTO toDto(Customer customer);
-    List<CustomerDTO> toListDto(List<Customer> customers);
-}
+    List<CustomerDTO> toListDto(List<Customer> customers);}
