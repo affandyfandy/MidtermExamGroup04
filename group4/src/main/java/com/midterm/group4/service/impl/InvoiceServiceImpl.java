@@ -47,6 +47,13 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     @Transactional
+    public Page<Invoice> findAll(int pageNo, int pageSize, String sortBy) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        return invoiceRepository.findAll(pageable);
+    }
+
+    @Override
+    @Transactional
     public Page<Invoice> findAllByDate(int pageNo, int pageSize, LocalDate sortBy, String sortOrder) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'findAllByDate'");

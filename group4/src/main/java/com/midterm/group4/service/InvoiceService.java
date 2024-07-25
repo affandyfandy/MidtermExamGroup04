@@ -14,6 +14,7 @@ public interface InvoiceService {
     Page<Invoice> findAllSorted(int pageNo, int pageSize, String sortBy, String sortOrder);
     Page<Invoice> findAllByDate(int pageNo, int pageSize, LocalDate sortBy, String sortOrder);
     Page<Invoice> findAllByMonth(int pageNo, int pageSize, int month, String sortOrder);
+    Page<Invoice> findAll(int pageNo, int pageSize, String sortBy);
     Invoice findById(UUID id);
     Invoice save(Invoice invoice);
     Invoice update(UUID id, Invoice product);

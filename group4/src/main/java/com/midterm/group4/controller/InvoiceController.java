@@ -29,12 +29,12 @@ public class InvoiceController {
     @Autowired
     private InvoiceMapper invoiceMapper;
 
-    @GetMapping
+    @GetMapping("/sort")
     public ResponseEntity<List<InvoiceDTO>> getAllInvoice(
         @RequestParam(defaultValue = "0", required = false) int pageNo,
         @RequestParam(defaultValue = "10", required = false) int pageSize,
         @RequestParam(defaultValue = "asc", required = false ) String sortOrder,
-        @RequestParam(defaultValue = "createdTime", required = false) String sortBy
+        @RequestParam(required = true) String sortBy
     ) {
         Page<Invoice> pageInvoice = invoiceService.findAllSorted(pageNo, pageSize, sortBy, sortOrder);
         return ResponseEntity.status(HttpStatus.OK).body(invoiceMapper.toListDto(pageInvoice.getContent()));
