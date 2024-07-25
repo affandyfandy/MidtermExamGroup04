@@ -1,5 +1,6 @@
 package com.midterm.group4.service.impl;
 
+import com.midterm.group4.dto.OrderItemDTO;
 import com.midterm.group4.service.OrderItemService;
 import com.midterm.group4.data.model.OrderItem;
 import com.midterm.group4.data.repository.OrderItemRepository;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigInteger;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -56,6 +58,24 @@ public class OrderItemServiceImpl implements OrderItemService{
             orderItemRepository.save(findOrderItem);
         }
         return null;
+    }
+
+    @Override
+    @Transactional
+    public OrderItem createOrderItem(OrderItemDTO orderItemDTO) {
+        OrderItem orderItem = new OrderItem();
+        // Set properties from DTO
+        orderItem.setProductId(orderItemDTO.getProductId());
+        orderItem.setQuantity(orderItemDTO.getQuantity());
+        orderItem.setAmount(orderItemDTO.getAmount());
+        // Save OrderItem
+        return orderItemRepository.save(orderItem);
+    }
+
+    @Override
+    @Transactional
+    public List<OrderItem> findAllByIds(List<UUID> orderItemIds) {
+        return orderItemRepository.findAllById(orderItemIds);
     }
 
     // public Page<OrderItem> getAllOrderItems(Pageable pageable) {

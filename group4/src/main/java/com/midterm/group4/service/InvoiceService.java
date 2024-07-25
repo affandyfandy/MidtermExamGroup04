@@ -3,6 +3,8 @@ package com.midterm.group4.service;
 import com.midterm.group4.data.model.Invoice;
 import java.time.LocalDate;
 import java.util.UUID;
+import java.util.List;
+import java.math.BigInteger;
 
 import com.midterm.group4.dto.InvoiceDTO;
 import org.springframework.data.domain.Page;
@@ -16,5 +18,6 @@ public interface InvoiceService {
     Invoice save(Invoice invoice);
     Invoice update(UUID id, Invoice product);
     Invoice createInvoice(InvoiceDTO invoiceDto);
+    BigInteger recalculateTotalAmount(List<UUID> orderItemIds);
     // byte[] generateToPdf(UUID id);
 }

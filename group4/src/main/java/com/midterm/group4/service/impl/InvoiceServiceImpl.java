@@ -1,11 +1,15 @@
 package com.midterm.group4.service.impl;
 
+import java.math.BigInteger;
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.List;
 
 import com.midterm.group4.data.model.Customer;
+import com.midterm.group4.data.model.OrderItem;
 import com.midterm.group4.dto.InvoiceDTO;
+import com.midterm.group4.service.OrderItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -33,6 +37,9 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Autowired
     private InvoiceMapper invoiceMapper;
+
+    @Autowired
+    private OrderItemService orderItemService;
 
     @Override
     @Transactional
@@ -81,11 +88,30 @@ public class InvoiceServiceImpl implements InvoiceService {
         }
         return findInvoice;
     }
+
+    @Override
     @Transactional
     public Invoice createInvoice(InvoiceDTO invoiceDto) {
-        Customer customer = customerService.findById(invoiceDto.getCustomerId());
+        // Create Invoice entity from DTO
         Invoice invoice = invoiceMapper.toEntity(invoiceDto);
-        invoice.setCustomer(customer);
+        // Set Order Items
+        List<OrderItem> orderItems = orderItemService.findAllByIds(invoiceDto.getOrderItemId());
+        invoice.setOrderItemId(invoiceDto.getOrderItemId());
+        // Calculate total amount
+        BigInteger totalAmount = orderItems.stream()
+                .map(orderItem -> orderItem.getAmount().multiply(BigInteger.valueOf(orderItem.getQuantity())))
+                .reduce(BigInteger.ZERO, BigInteger::add);
+        invoice.setTotalAmount(totalAmount);
+        // Save Invoice
         return invoiceRepository.save(invoice);
+    }
+
+    @Override
+    @Transactional
+    public BigInteger recalculateTotalAmount(List<UUID> orderItemIds) {
+        List<OrderItem> orderItems = orderItemService.findAllByIds(orderItemIds);
+        return orderItems.stream()
+                .map(orderItem -> orderItem.getAmount().multiply(BigInteger.valueOf(orderItem.getQuantity())))
+                .reduce(BigInteger.ZERO, BigInteger::add);
     }
 }
