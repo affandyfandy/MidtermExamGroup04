@@ -1,5 +1,6 @@
 package com.midterm.group4.data.model;
 
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -22,22 +23,25 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "customer")
-public class Customer {
+@Table(name = "product")
+public class Product{
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "customerId")
-    private UUID customerId;
+    @Column(name = "productId", updatable = false, nullable = false)
+    private UUID productId;
 
-    @Column(name = "phone", length = 12, nullable = false)
-    private String phone;
+    @Column(name = "name", length = 200, nullable = false)
+    private String name;
 
-    @Column(name = "firstName", length = 100, nullable = false)
-    private String firstName;
+    @Column(name = "price", nullable = false)
+    private BigInteger price;
 
-    @Column(name = "lastName", length = 100, nullable = false)
-    private String lastName;
+    @Column(name = "isActive", nullable = false)
+    private boolean isActive;
+
+    @Column(name = "quantity", nullable = false)
+    private Integer quantity;
 
     @Column(name = "createdTime", nullable = false)
     private LocalDateTime createdTime;
@@ -45,16 +49,14 @@ public class Customer {
     @Column(name = "updatedTime", nullable = false)
     private LocalDateTime updatedTime;
 
-    @Column(name = "isActive")
-    private boolean isActive;
-
-    @OneToMany(mappedBy = "customer", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private List<Invoice> listInvoice;
+    @OneToMany(mappedBy = "product", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private List<OrderItem> listOrderItem;
 
     @PrePersist
     protected void onCreate() {
-        if (customerId == null) {
-            customerId = UUID.randomUUID();
+        if (productId == null) {
+            productId = UUID.randomUUID();
         }
     }
+    
 }

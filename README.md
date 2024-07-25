@@ -26,7 +26,7 @@ In the first phase, we defined the scope of the system. We began by defining the
 
 > **AS A CUSTOMER, I WANT TO BUY SOME PRODUCTS AND KNOW THEIR TOTAL PRICE SO THAT I NEED AN INVOICE TO SUMMARIZE THE ORDER LINES.**
 
-From this use case, we identified four main objects: **Customer, Product, Invoice, and OrderLine**.
+From this user story, we identified four main objects: **Customer, Product, Invoice, and OrderLine**.
 
 #### Customer
 The Customer object is expected to manage customer operations, from basic queries (CRUD) to complex operations, such as placing an order.

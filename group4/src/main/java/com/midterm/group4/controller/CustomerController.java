@@ -1,8 +1,11 @@
 package com.midterm.group4.controller;
 
-import com.midterm.group4.dto.CustomerDTO;
 import com.midterm.group4.data.model.Customer;
-import com.midterm.group4.service.impl.CustomerService;
+import com.midterm.group4.dto.CustomerDTO;
+import com.midterm.group4.dto.CustomerMapper;
+import com.midterm.group4.service.CustomerService;
+import java.util.List;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -11,51 +14,56 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
-import java.util.UUID;
-
 @RestController
-@RequestMapping("/api/customers")
+@RequestMapping("/api/v1/customer")
 public class CustomerController {
 
     @Autowired
     private CustomerService customerService;
 
+    @Autowired
+    private CustomerMapper customerMapper;
+
     @GetMapping
-    public ResponseEntity<Page<Customer>> getAllCustomers(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Customer> customers = customerService.getAllCustomers(pageable);
-        return new ResponseEntity<>(customers, HttpStatus.OK);
+    public ResponseEntity<List<CustomerDTO>> getAllCustomers(
+        @RequestParam(defaultValue = "0", required = false) int page,
+        @RequestParam(defaultValue = "10", required = false) int size) {
+        Page<Customer> pageCustomer = customerService.findAll(page, size);
+        List<Customer> listCustomer = pageCustomer.getContent();
+        return ResponseEntity.status(HttpStatus.OK).body(customerMapper.toListDto(listCustomer));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Customer> getCustomerById(@PathVariable UUID id) {
-        Optional<Customer> customer = customerService.getCustomerById(id);
-        return customer.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    public ResponseEntity<CustomerDTO> getCustomerById(@PathVariable UUID id) {
+        Customer customer = customerService.findById(id);
+        return ResponseEntity.status(HttpStatus.OK).body(customerMapper.toDto(customer));
+    }
+
+    @PostMapping("/{id}/activate")
+    public ResponseEntity<CustomerDTO> customerActivation(@PathVariable UUID id){
+        customerService.updateStatus(id, true);
+        Customer customer = customerService.findById(id);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(customerMapper.toDto(customer));
+    }
+
+    @PostMapping("/{id}/deactivate")
+    public ResponseEntity<CustomerDTO> customerDeactivation(@PathVariable UUID id){
+        customerService.updateStatus(id, false);
+        Customer customer = customerService.findById(id);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(customerMapper.toDto(customer));
     }
 
     @PostMapping
-    public ResponseEntity<Customer> createCustomer(@RequestBody CustomerDTO customerDTO) {
-        Customer createdCustomer = customerService.createCustomer(customerDTO);
-        return new ResponseEntity<>(createdCustomer, HttpStatus.CREATED);
+    public ResponseEntity<CustomerDTO> createCustomer(@RequestBody CustomerDTO dto) {
+        Customer customer = customerMapper.toEntity(dto);
+        Customer newCustomer = customerService.saveCustomer(customer);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(customerMapper.toDto(newCustomer));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Customer> updateCustomer(@PathVariable UUID id, @RequestBody CustomerDTO customerDTO) {
-        Customer updatedCustomer = customerService.updateCustomer(id, customerDTO);
-        if (updatedCustomer != null) {
-            return new ResponseEntity<>(updatedCustomer, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCustomer(@PathVariable UUID id) {
-        customerService.deleteCustomer(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    public ResponseEntity<CustomerDTO> updateCustomer(@PathVariable UUID id, @RequestBody CustomerDTO dto){
+        Customer customer = customerMapper.toEntity(dto);
+        Customer updatedCustomer = customerService.update(id, customer);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(customerMapper.toDto(updatedCustomer));
     }
 }

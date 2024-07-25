@@ -1,18 +1,36 @@
 package com.midterm.group4.data.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import java.math.BigDecimal;
+import lombok.NoArgsConstructor;
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Entity
-@Table(name = "order_items")
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Entity
+@Table(name = "order_item")
 public class OrderItem {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "orderItemId", updatable = false, nullable = false)
     private UUID orderItemId;
+
+    @Column(name = "quantity", nullable = false)
+    private Integer quantity;
+
+    @Column(name = "amount", nullable = false)
+    private BigInteger amount;
+
+    @Column(name = "createdTime", nullable = false)
+    private LocalDateTime createdTime;
+
+    @Column(name = "updatedTime", nullable = false)
+    private LocalDateTime updatedTime;
 
     @ManyToOne
     @JoinColumn(name = "invoiceId", nullable = false)
@@ -22,14 +40,10 @@ public class OrderItem {
     @JoinColumn(name = "productId", nullable = false)
     private Product product;
 
-    @Column(nullable = false)
-    private int quantity;
-
-    @Column(nullable = false)
-    private BigDecimal amount;
-
-    @Column(nullable = false)
-    private LocalDateTime createdTime;
-
-    private LocalDateTime updatedTime;
+    @PrePersist
+    protected void onCreate() {
+        if (orderItemId == null) {
+            orderItemId = UUID.randomUUID();
+        }
+    }
 }

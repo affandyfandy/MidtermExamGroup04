@@ -1,10 +1,12 @@
 package com.midterm.group4.data.repository;
 
-import com.midterm.group4.data.model.Customer;
+import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import java.util.UUID;
+
+import com.midterm.group4.data.model.Invoice;
 
 @Repository
-public interface CustomerRepository extends JpaRepository<Customer, UUID> {
+public interface InvoiceRepository extends JpaRepository<Invoice, UUID> {
+    
 }
