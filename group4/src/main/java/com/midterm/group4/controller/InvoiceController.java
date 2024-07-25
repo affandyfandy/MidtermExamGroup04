@@ -5,6 +5,8 @@ import com.midterm.group4.data.model.Invoice;
 import com.midterm.group4.dto.InvoiceDTO;
 import com.midterm.group4.dto.InvoiceMapper;
 import com.midterm.group4.service.InvoiceService;
+
+import java.time.LocalDate;
 import java.util.UUID;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +32,7 @@ public class InvoiceController {
     private InvoiceMapper invoiceMapper;
 
     @GetMapping("/sort")
-    public ResponseEntity<List<InvoiceDTO>> getAllInvoice(
+    public ResponseEntity<List<InvoiceDTO>> getAllInvoiceSort(
         @RequestParam(defaultValue = "0", required = false) int pageNo,
         @RequestParam(defaultValue = "10", required = false) int pageSize,
         @RequestParam(defaultValue = "asc", required = false ) String sortOrder,
@@ -40,16 +42,35 @@ public class InvoiceController {
         return ResponseEntity.status(HttpStatus.OK).body(invoiceMapper.toListDto(pageInvoice.getContent()));
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<List<InvoiceDTO>> getInvoiceByMonth(
-            @RequestParam(defaultValue = "1", required = false) int pageNo,
+    @GetMapping
+    public ResponseEntity<List<InvoiceDTO>> getAllInvoice(
+            @RequestParam(defaultValue = "0", required = false) int pageNo,
             @RequestParam(defaultValue = "10", required = false) int pageSize,
-            @RequestParam(defaultValue = "asc", required = false ) String sortOrder,
-            @RequestParam(required = true) int month
+            @RequestParam(defaultValue = "asc", required = false ) String sortOrder
     ) {
-        Page<Invoice> pageInvoice = invoiceService.findAllByMonth(pageNo, pageSize, month, sortOrder);
+        Page<Invoice> pageInvoice = invoiceService.findAll(pageNo, pageSize, sortOrder);
         return ResponseEntity.status(HttpStatus.OK).body(invoiceMapper.toListDto(pageInvoice.getContent()));
     }
+
+    @GetMapping("/filter")
+    public ResponseEntity<List<InvoiceDTO>> getInvoiceByFilter(
+            @RequestParam(defaultValue = "0", required = false) int pageNo,
+            @RequestParam(defaultValue = "10", required = false) int pageSize,
+            @RequestParam(defaultValue = "asc", required = false ) String sortOrder,
+            @RequestParam(required = false) LocalDate invoiceDate,
+            @RequestParam(required = false) Integer month
+    ) {
+        Page<Invoice> pageInvoice;
+        if (invoiceDate != null) {
+            pageInvoice = invoiceService.findAllByDate(pageNo, pageSize, invoiceDate, sortOrder);
+        } else if (month != null) {
+            pageInvoice = invoiceService.findAllByMonth(pageNo, pageSize, month, sortOrder);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null); // Invalid request if neither is provided
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(invoiceMapper.toListDto(pageInvoice.getContent()));
+    }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<InvoiceDTO> getInvoiceById(@PathVariable UUID id) {
