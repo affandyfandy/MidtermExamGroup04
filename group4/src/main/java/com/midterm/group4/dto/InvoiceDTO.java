@@ -3,7 +3,6 @@ package com.midterm.group4.dto;
 import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import lombok.Data;
