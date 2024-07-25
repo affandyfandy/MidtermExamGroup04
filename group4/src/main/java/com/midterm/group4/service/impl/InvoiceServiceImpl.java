@@ -4,10 +4,13 @@ import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import com.midterm.group4.data.model.Customer;
+import com.midterm.group4.data.repository.OrderItemRepository;
 import com.midterm.group4.dto.InvoiceDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -36,6 +39,9 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Autowired
     private InvoiceMapper invoiceMapper;
+
+    @Autowired
+    private OrderItemRepository orderItemRepository;
 
     @Override
     @Transactional
@@ -121,5 +127,58 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Transactional
     public List<Invoice> findByCustomerName(String customerName) {
         return invoiceRepository.findByCustomerNameContaining(customerName);
+    }
+
+    @Override
+    @Transactional
+    public BigInteger getTotalAmountPerDay(LocalDate date) {
+        return invoiceRepository.findTotalAmountByDate(date);
+    }
+
+    @Override
+    @Transactional
+    public BigInteger getTotalAmountPerMonth(int month, int year) {
+        return invoiceRepository.findTotalAmountByMonth(month, year);
+    }
+
+    @Override
+    @Transactional
+    public BigInteger getTotalAmountPerYear(int year) {
+        return invoiceRepository.findTotalAmountByYear(year);
+    }
+
+    @Override
+    @Transactional
+    public List<Map<String, Object>> getTop3ProductsByAmount() {
+        return orderItemRepository.findTopProductsByAmount().stream()
+                .map(data -> Map.of("name", data[0], "totalAmount", data[1]))
+                .limit(3)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public List<String> getSoldProducts() {
+        return orderItemRepository.findSoldProducts();
+    }
+
+    @Override
+    @Transactional
+    public Map<String, Long> getTotalQuantityPerProduct() {
+        return orderItemRepository.findTotalQuantityPerProduct()
+                .stream().collect(Collectors.toMap(
+                        data -> (String) data[0],
+                        data -> ((Number) data[1]).longValue()
+                ));
+    }
+
+    @Override
+    @Transactional
+    public Map<String, BigInteger> getTotalAmountPerProduct() {
+        return orderItemRepository.findTotalAmountPerProduct()
+                .stream().collect(Collectors.toMap(
+                        data -> (String) data[0],
+                        data -> (BigInteger) data[1]
+                ));
     }
 }

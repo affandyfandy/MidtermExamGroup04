@@ -1,15 +1,19 @@
 package com.midterm.group4.controller;
 
+import com.midterm.group4.data.repository.InvoiceRepository;
+import com.midterm.group4.data.repository.OrderItemRepository;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.RestController;
 import com.midterm.group4.data.model.Invoice;
 import com.midterm.group4.dto.InvoiceDTO;
 import com.midterm.group4.dto.InvoiceMapper;
 import com.midterm.group4.service.InvoiceService;
 
+import java.math.BigInteger;
 import java.time.LocalDate;
-import java.util.UUID;
-import java.util.List;
+import java.util.*;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -31,6 +35,12 @@ public class InvoiceController {
 
     @Autowired
     private InvoiceMapper invoiceMapper;
+
+    @Autowired
+    private InvoiceRepository invoiceRepository;
+
+    @Autowired
+    private OrderItemRepository orderItemRepository;
 
     @GetMapping("/sort")
     public ResponseEntity<List<InvoiceDTO>> getAllInvoiceSort(
@@ -112,4 +122,40 @@ public class InvoiceController {
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(invoiceMapper.toDto(newInvoice));
     }
 
+    @GetMapping("/report")
+    public ResponseEntity<Map<String, Object>> getReport(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(required = false) Integer month,
+            @RequestParam(required = false) Integer year) {
+
+        if (date == null && month == null && year == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "At least one parameter (date, month, year) is required"));
+        }
+
+        BigInteger totalAmountPerDay = date != null ? invoiceService.getTotalAmountPerDay(date) : null;
+        BigInteger totalAmountPerMonth = (month != null && year != null) ? invoiceService.getTotalAmountPerMonth(month, year) : null;
+        BigInteger totalAmountPerYear = year != null ? invoiceService.getTotalAmountPerYear(year) : null;
+
+        List<Map<String, Object>> topProductsByAmount = invoiceService.getTop3ProductsByAmount();
+        List<String> soldProducts = invoiceService.getSoldProducts();
+        Map<String, Long> totalQuantityPerProduct = invoiceService.getTotalQuantityPerProduct();
+        Map<String, BigInteger> totalAmountPerProduct = invoiceService.getTotalAmountPerProduct();
+
+        Map<String, Object> report = new LinkedHashMap<>();
+        if (date != null) {
+            report.put("Revenue generated this day", totalAmountPerDay);
+        }
+        if (month != null) {
+            report.put("Revenue generated this month", totalAmountPerMonth);
+        }
+        if (year != null && month == null) {
+            report.put("Revenue generated this year", totalAmountPerYear);
+        }
+        report.put("Top 3 Products By Amount", topProductsByAmount);
+        report.put("Product Quantity Sold", totalQuantityPerProduct);
+        report.put("Revenue Per Product", totalAmountPerProduct);
+        report.put("Sold Products", soldProducts);
+
+        return ResponseEntity.ok(report);
+    }
 }

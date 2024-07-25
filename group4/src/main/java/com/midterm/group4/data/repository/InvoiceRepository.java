@@ -1,5 +1,6 @@
 package com.midterm.group4.data.repository;
 
+import java.math.BigInteger;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -24,4 +25,13 @@ public interface InvoiceRepository extends JpaRepository<Invoice, UUID> {
 
     @Query("SELECT i FROM Invoice i WHERE i.customer.firstName LIKE %:customerName% OR i.customer.lastName LIKE %:customerName%")
     List<Invoice> findByCustomerNameContaining(@Param("customerName") String customerName);
+
+    @Query("SELECT SUM(i.totalAmount) FROM Invoice i WHERE i.invoiceDate = :date")
+    BigInteger findTotalAmountByDate(@Param("date") LocalDate date);
+
+    @Query("SELECT SUM(i.totalAmount) FROM Invoice i WHERE FUNCTION('MONTH', i.invoiceDate) = :month AND FUNCTION('YEAR', i.invoiceDate) = :year")
+    BigInteger findTotalAmountByMonth(@Param("month") int month, @Param("year") int year);
+
+    @Query("SELECT SUM(i.totalAmount) FROM Invoice i WHERE FUNCTION('YEAR', i.invoiceDate) = :year")
+    BigInteger findTotalAmountByYear(@Param("year") int year);
 }

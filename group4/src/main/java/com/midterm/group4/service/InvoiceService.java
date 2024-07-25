@@ -3,8 +3,10 @@ package com.midterm.group4.service;
 import com.midterm.group4.data.model.Invoice;
 import com.midterm.group4.data.model.OrderItem;
 
+import java.math.BigInteger;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import com.midterm.group4.dto.InvoiceDTO;
@@ -21,5 +23,12 @@ public interface InvoiceService {
     Invoice update(UUID id, Invoice product);
     Invoice createInvoice(InvoiceDTO invoiceDto);
     List<Invoice> findByCustomerName(String customerName);
+    BigInteger getTotalAmountPerDay(LocalDate date);
+    BigInteger getTotalAmountPerMonth(int month, int year);
+    BigInteger getTotalAmountPerYear(int year);
+    List<Map<String, Object>> getTop3ProductsByAmount();
+    List<String> getSoldProducts();
+    Map<String, Long> getTotalQuantityPerProduct();
+    Map<String, BigInteger> getTotalAmountPerProduct();
     // byte[] generateToPdf(UUID id);
 }
