@@ -13,6 +13,6 @@ public class CustomerDTO {
     private String lastName;
     private LocalDateTime createdTime = LocalDateTime.now();
     private LocalDateTime updatedTime = LocalDateTime.now();
-    private boolean isActive = true;
+    private boolean isActive;
     private List<InvoiceDTO> listInvoice;
 }

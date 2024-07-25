@@ -41,6 +41,19 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).body(productMapper.toListDto(pageProduct.getContent()));
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<ProductDTO>> searchProduct(
+        @RequestParam(defaultValue = "0", required = false) int pageNo,
+        @RequestParam(defaultValue = "10", required = false) int pageSize,
+        @RequestParam(defaultValue = "asc", required = false) String sortOrder,
+        @RequestParam(defaultValue = "name", required = false) String sortBy,
+        @RequestParam(value = "name", required = false) String name,
+        @RequestParam(value = "status", required = false) String status
+    ) {
+        Page<Product> pageProduct = productService.findAllByQuery(pageNo, pageSize, sortOrder, sortBy, name, status);
+        return ResponseEntity.status(HttpStatus.OK).body(productMapper.toListDto(pageProduct.getContent()));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ProductDTO> getProductById(@PathVariable UUID id) {
         Product product = productService.findById(id);
