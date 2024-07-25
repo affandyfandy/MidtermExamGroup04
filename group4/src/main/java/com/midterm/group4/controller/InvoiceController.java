@@ -19,11 +19,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
-
 @RestController
 @RequestMapping("/api/v1/invoice")
 public class InvoiceController {
-    
+
     @Autowired
     private InvoiceService invoiceService;
 
@@ -32,10 +31,10 @@ public class InvoiceController {
 
     @GetMapping
     public ResponseEntity<List<InvoiceDTO>> getAllInvoice(
-        @RequestParam(defaultValue = "0", required = false) int pageNo,
-        @RequestParam(defaultValue = "10", required = false) int pageSize,
-        @RequestParam(defaultValue = "asc", required = false ) String sortOrder,
-        @RequestParam(defaultValue = "name", required = false) String sortBy
+            @RequestParam(defaultValue = "0", required = false) int pageNo,
+            @RequestParam(defaultValue = "10", required = false) int pageSize,
+            @RequestParam(defaultValue = "asc", required = false ) String sortOrder,
+            @RequestParam(defaultValue = "createdTime", required = false) String sortBy
     ) {
         Page<Invoice> pageInvoice = invoiceService.findAllSorted(pageNo, pageSize, sortBy, sortOrder);
         return ResponseEntity.status(HttpStatus.OK).body(invoiceMapper.toListDto(pageInvoice.getContent()));
@@ -43,10 +42,10 @@ public class InvoiceController {
 
     @GetMapping("/search")
     public ResponseEntity<List<InvoiceDTO>> getInvoiceByMonth(
-        @RequestParam(defaultValue = "1", required = false) int pageNo,
-        @RequestParam(defaultValue = "10", required = false) int pageSize,
-        @RequestParam(defaultValue = "asc", required = false ) String sortOrder,
-        @RequestParam(required = true) int month
+            @RequestParam(defaultValue = "1", required = false) int pageNo,
+            @RequestParam(defaultValue = "10", required = false) int pageSize,
+            @RequestParam(defaultValue = "asc", required = false ) String sortOrder,
+            @RequestParam(required = true) int month
     ) {
         Page<Invoice> pageInvoice = invoiceService.findAllByMonth(pageNo, pageSize, month, sortOrder);
         return ResponseEntity.status(HttpStatus.OK).body(invoiceMapper.toListDto(pageInvoice.getContent()));
@@ -64,12 +63,15 @@ public class InvoiceController {
         Invoice updatedInvoice = invoiceService.update(id, invoice);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(invoiceMapper.toDto(updatedInvoice));
     }
-    
+
     @PostMapping
     public ResponseEntity<InvoiceDTO> addNewInvoice(@RequestBody InvoiceDTO invoiceDto) {
         Invoice invoice = invoiceMapper.toEntity(invoiceDto);
+        invoice.setInvoiceDate(null);
+        invoice.setCreatedTime(null);
+        invoice.setUpdatedTime(null);
         Invoice newInvoice = invoiceService.save(invoice);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(invoiceMapper.toDto(newInvoice));
     }
-    
+
 }
