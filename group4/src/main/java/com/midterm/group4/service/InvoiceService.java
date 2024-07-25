@@ -3,6 +3,7 @@ package com.midterm.group4.service;
 import com.midterm.group4.data.model.Invoice;
 import com.midterm.group4.data.model.OrderItem;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -18,5 +19,5 @@ public interface InvoiceService {
     Invoice save(Invoice invoice);
     Invoice update(UUID id, Invoice product);
     Invoice createInvoice(InvoiceDTO invoiceDto);
-    // byte[] generateToPdf(UUID id);
+    byte[] generateToPdf(UUID id) throws IOException;
 }

@@ -1,5 +1,6 @@
 package com.midterm.group4.service.impl;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -22,6 +23,7 @@ import com.midterm.group4.data.model.OrderItem;
 import com.midterm.group4.data.repository.InvoiceRepository;
 import com.midterm.group4.service.CustomerService;
 import com.midterm.group4.service.InvoiceService;
+import com.midterm.group4.utils.DocumentUtils;
 import com.midterm.group4.dto.InvoiceDTO;
 import com.midterm.group4.dto.InvoiceMapper;
 
@@ -36,6 +38,8 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Autowired
     private InvoiceMapper invoiceMapper;
+
+    private DocumentUtils documentUtils;
 
     @Override
     @Transactional
@@ -106,5 +110,15 @@ public class InvoiceServiceImpl implements InvoiceService {
         Invoice invoice = invoiceMapper.toEntity(invoiceDto);
         invoice.setCustomer(customer);
         return invoiceRepository.save(invoice);
+    }
+
+    @Override
+    public byte[] generateToPdf(UUID id) throws IOException {
+        Invoice invoice = findById(id);
+        if (invoice != null){
+            byte[] pdfBytes = documentUtils.generateByteInvoice(invoice);
+            return pdfBytes;
+        }
+        return null;
     }
 }

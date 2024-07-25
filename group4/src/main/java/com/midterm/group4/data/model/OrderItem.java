@@ -46,4 +46,9 @@ public class OrderItem {
             orderItemId = UUID.randomUUID();
         }
     }
+    
+    @PostUpdate
+    protected void onUpdate() {
+        updatedTime = LocalDateTime.now();
+    }
 }

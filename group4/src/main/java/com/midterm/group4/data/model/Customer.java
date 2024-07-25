@@ -12,9 +12,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PostUpdate;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -57,5 +58,10 @@ public class Customer {
         if (customerId == null) {
             customerId = UUID.randomUUID();
         }
+    }
+
+    @PostUpdate
+    protected void onUpdate() {
+        updatedTime = LocalDateTime.now();
     }
 }

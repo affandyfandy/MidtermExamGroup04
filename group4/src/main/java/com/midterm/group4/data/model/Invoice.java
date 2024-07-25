@@ -1,6 +1,7 @@
 package com.midterm.group4.data.model;
 
 import java.math.BigInteger;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -41,14 +42,14 @@ public class Invoice {
     @OneToMany(mappedBy = "invoice", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<OrderItem> listOrderItem;
 
-    // @PrePersist
-    // protected void onCreate() {
-    //     if (invoiceId == null) {
-    //         invoiceId = UUID.randomUUID();
-    //     }
-    // }
+    @PrePersist
+    protected void onCreate() {
+        if (invoiceId == null) {
+            invoiceId = UUID.randomUUID();
+        }
+    }
 
-    @PreUpdate
+    @PostUpdate
     protected void onUpdate() {
         updatedTime = LocalDateTime.now();
     }

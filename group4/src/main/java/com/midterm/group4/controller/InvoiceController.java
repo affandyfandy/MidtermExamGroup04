@@ -6,10 +6,13 @@ import com.midterm.group4.dto.InvoiceDTO;
 import com.midterm.group4.dto.InvoiceMapper;
 import com.midterm.group4.service.InvoiceService;
 import java.util.UUID;
+import java.io.IOException;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -42,10 +45,10 @@ public class InvoiceController {
 
     @GetMapping("/search")
     public ResponseEntity<List<InvoiceDTO>> getInvoiceByMonth(
-            @RequestParam(defaultValue = "1", required = false) int pageNo,
-            @RequestParam(defaultValue = "10", required = false) int pageSize,
-            @RequestParam(defaultValue = "asc", required = false ) String sortOrder,
-            @RequestParam(required = true) int month
+        @RequestParam(defaultValue = "1", required = false) int pageNo,
+        @RequestParam(defaultValue = "10", required = false) int pageSize,
+        @RequestParam(defaultValue = "asc", required = false ) String sortOrder,
+        @RequestParam(required = true) int month
     ) {
         Page<Invoice> pageInvoice = invoiceService.findAllByMonth(pageNo, pageSize, month, sortOrder);
         return ResponseEntity.status(HttpStatus.OK).body(invoiceMapper.toListDto(pageInvoice.getContent()));
@@ -67,11 +70,17 @@ public class InvoiceController {
     @PostMapping
     public ResponseEntity<InvoiceDTO> addNewInvoice(@RequestBody InvoiceDTO invoiceDto) {
         Invoice invoice = invoiceMapper.toEntity(invoiceDto);
-        // invoice.setInvoiceDate(null);
-        // invoice.setCreatedTime(null);
-        // invoice.setUpdatedTime(null);
         Invoice newInvoice = invoiceService.save(invoice);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(invoiceMapper.toDto(newInvoice));
+    }
+
+    @GetMapping("/{id}/export")
+    public ResponseEntity<?> download(@PathVariable UUID id) throws IOException {
+        byte[] pdfBytes = invoiceService.generateToPdf(id);
+        return ResponseEntity.ok()
+            .contentType(MediaType.APPLICATION_PDF)
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=invoice.pdf")
+            .body(pdfBytes);
     }
 
 }
