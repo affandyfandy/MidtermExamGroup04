@@ -38,7 +38,7 @@ public class Product{
     private BigInteger price;
 
     @Column(name = "isActive", nullable = false)
-    private boolean isActive;
+    private boolean isActive = true;
 
     @Column(name = "quantity", nullable = false)
     private Integer quantity;

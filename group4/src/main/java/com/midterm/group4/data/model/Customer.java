@@ -46,7 +46,7 @@ public class Customer {
     private LocalDateTime updatedTime;
 
     @Column(name = "isActive")
-    private boolean isActive;
+    private boolean isActive = true;
 
     @OneToMany(mappedBy = "customer", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Invoice> listInvoice;

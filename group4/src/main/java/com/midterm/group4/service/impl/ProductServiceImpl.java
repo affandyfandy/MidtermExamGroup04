@@ -24,7 +24,8 @@ public class ProductServiceImpl implements ProductService{
     @Override
     @Transactional
     public Page<Product> findAllSorted(int pageNo, int pageSize, String sortBy, String sortOrder) {
-        Sort sort = Sort.by(Sort.Direction.fromOptionalString(sortOrder).orElse(Sort.Direction.ASC),sortBy);
+        Sort.Direction direction = "desc".equalsIgnoreCase(sortOrder) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Sort sort = Sort.by(direction,sortBy);
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
         return productRepository.findAll(pageable);
     }
@@ -66,6 +67,48 @@ public class ProductServiceImpl implements ProductService{
             findProduct.setActive(status);
         }
     }
+
+    @Override
+    @Transactional
+    public Page<Product> findAllByQuery(int pageNo, int pageSize, String sortOrder, String sortBy, String name, String status) {
+        Sort.Direction direction = "desc".equalsIgnoreCase(sortOrder) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Sort sort = Sort.by(direction, sortBy != null ? sortBy : "name");
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+
+        int intStatus = 0;
+        if (status != null && "active".equalsIgnoreCase(status)) {
+            intStatus = 1;
+        }
+        if (name != null && !name.isEmpty() && (status == null || status.isEmpty())) {
+            return productRepository.findAllByName(name, pageable);
+        } else if (status != null && !status.isEmpty() && (name == null || name.isEmpty())) {
+            return productRepository.findAllByStatus(intStatus, pageable);
+        } else if (name != null && !name.isEmpty() && status != null && !status.isEmpty()) {
+            return productRepository.findAllByNameAndStatus(name, intStatus, pageable);
+        } else {
+            return productRepository.findAll(pageable);
+        }
+    }
+
+
+    // @Override
+    // @Transactional
+    // public Page<Product> findAllByName(int pageNo, int pageSize, String sortBy, String sortOrder, String name) {
+    //     Sort.Direction direction = "desc".equalsIgnoreCase(sortOrder) ? Sort.Direction.DESC : Sort.Direction.ASC;
+    //     Sort sort = Sort.by(direction,sortBy);
+    //     Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+    //     return productRepository.findAllByName(name, pageable);
+    // }
+
+    // @Override
+    // @Transactional
+    // public Page<Product> findAllByStatus(int pageNo, int pageSize, String sortBy, String sortOrder, boolean status) {
+    //     Sort.Direction direction = "desc".equalsIgnoreCase(sortOrder) ? Sort.Direction.DESC : Sort.Direction.ASC;
+    //     Sort sort = Sort.by(direction,sortBy);
+    //     Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+    //     int statusInt = status ? 1 : 0;
+    //     return productRepository.findAllByStatus(statusInt, pageable);
+    // }
 
     // @Override
     // @Transactional
