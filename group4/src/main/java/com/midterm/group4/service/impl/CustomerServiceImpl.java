@@ -1,6 +1,7 @@
 package com.midterm.group4.service.impl;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +61,10 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     @Transactional
     public Customer saveCustomer(Customer customer) {
+        customer.setActive(true);
+        customer.setListInvoice(new ArrayList<>());
+        customer.setCreatedTime(LocalDateTime.now());
+        customer.setUpdatedTime(LocalDateTime.now());
         return customerRepository.save(customer);
     }
 

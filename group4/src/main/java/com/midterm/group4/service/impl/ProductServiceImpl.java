@@ -1,5 +1,8 @@
 package com.midterm.group4.service.impl;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -41,6 +44,10 @@ public class ProductServiceImpl implements ProductService{
     @Override
     @Transactional
     public Product save(Product product) {
+        product.setActive(true);
+        product.setListOrderItem(new ArrayList<>());
+        product.setCreatedTime(LocalDateTime.now());
+        product.setUpdatedTime(LocalDateTime.now());
         return productRepository.save(product);
     }
 
@@ -65,6 +72,8 @@ public class ProductServiceImpl implements ProductService{
         Product findProduct = findById(id);
         if (findProduct != null){
             findProduct.setActive(status);
+            findProduct.setUpdatedTime(LocalDateTime.now());
+            productRepository.save(findProduct);
         }
     }
 
@@ -88,6 +97,12 @@ public class ProductServiceImpl implements ProductService{
         } else {
             return productRepository.findAll(pageable);
         }
+    }
+
+    @Override
+    @Transactional
+    public List<Product> saveAll(List<Product> products) {
+        return productRepository.saveAll(products);
     }
 
 

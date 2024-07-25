@@ -1,6 +1,7 @@
 package com.midterm.group4.data.model;
 
 import java.math.BigInteger;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -19,19 +20,19 @@ public class Invoice {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "invoice_id", updatable = false, nullable = false)
+    @Column
     private UUID invoiceId;
 
-    @Column(name = "invoice_date", nullable = false)
-    private LocalDateTime invoiceDate;
-
-    @Column(name = "total_amount", nullable = false)
+    @Column(nullable = false)
     private BigInteger totalAmount;
 
-    @Column(name = "created_time", nullable = false)
+    @Column(nullable = false)
+    private LocalDate invoiceDate;
+
+    @Column(nullable = false)
     private LocalDateTime createdTime;
 
-    @Column(name = "updated_time", nullable = false)
+    @Column(nullable = false)
     private LocalDateTime updatedTime;
 
     @ManyToOne
@@ -41,16 +42,12 @@ public class Invoice {
     @OneToMany(mappedBy = "invoice", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<OrderItem> listOrderItem;
 
-    @PrePersist
-    protected void onCreate() {
-        if (invoiceId == null) {
-            invoiceId = UUID.randomUUID();
-            LocalDateTime now = LocalDateTime.now();
-            createdTime = now;
-            updatedTime = now;
-            invoiceDate = now;
-        }
-    }
+    // @PrePersist
+    // protected void onCreate() {
+    //     if (invoiceId == null) {
+    //         invoiceId = UUID.randomUUID();
+    //     }
+    // }
 
     @PreUpdate
     protected void onUpdate() {

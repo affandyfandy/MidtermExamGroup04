@@ -17,6 +17,8 @@ public interface ProductMapper {
 
     ProductDTO toDto(Product product);
     List<ProductDTO> toListDto(List<Product> products);
+
+    List<Product> toListEntity(List<ProductDTO> listProductDTOs);
     // default Page<ProductDTO> toDto(Page<Product> pageProduct) {
     //     List<ProductDTO> productDtos = pageProduct.stream()
     //             .map(this::toDto)
