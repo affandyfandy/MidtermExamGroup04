@@ -29,6 +29,7 @@ import com.midterm.group4.data.model.Product;
 import com.midterm.group4.data.repository.CustomerRepository;
 import com.midterm.group4.data.repository.InvoiceRepository;
 import com.midterm.group4.data.repository.ProductRepository;
+import com.midterm.group4.exception.ObjectNotFoundException;
 import com.midterm.group4.service.InvoiceService;
 import com.midterm.group4.service.ProductService;
 import com.midterm.group4.utils.DocumentUtils;
@@ -98,11 +99,10 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Override
     @Transactional
     public Invoice findById(UUID id) {
-        Optional<Invoice> optInvoice = invoiceRepository.findById(id);
-        if (optInvoice.isPresent()) return optInvoice.get();
-        return null;
+        return invoiceRepository.findById(id)
+            .orElseThrow(() -> new ObjectNotFoundException("Invoice not found with ID: " + id));
     }
-
+        
     @Override
     @Transactional
     public Invoice save(Invoice invoice) {
@@ -290,6 +290,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         Customer customer;
         if (cust.isPresent()){
             customer = cust.get();
+            if (!customer.isActive()) throw new IllegalArgumentException("Customer is deactive");
         }
         else {
             throw new IllegalArgumentException("Customer doesn't exist");
@@ -337,15 +338,13 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     @Transactional
-// <<<<<<< HEAD
-//     public Page<Invoice> findAllByCustomerName(int pageNo, int pageSize, String sortBy, String sortOrder, String name) {
-//         Sort.Direction direction = "desc".equalsIgnoreCase(sortOrder) ? Sort.Direction.DESC : Sort.Direction.ASC;
-//         Sort sort = Sort.by(direction,sortBy);
-//         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
-//         return invoiceRepository.findAllByCustomerName(name, pageable);
-// =======
-    public List<Invoice> findByCustomerName(String customerName) {
-        return invoiceRepository.findByCustomerNameContaining(customerName);
+    public Page<Invoice> findAllByCustomerName(int pageNo, int pageSize, String sortBy, String sortOrder, String name) {
+        Sort.Direction direction = "desc".equalsIgnoreCase(sortOrder) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Sort sort = Sort.by(direction,sortBy);
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        return invoiceRepository.findAllByCustomerName(name, pageable);
+    // public List<Invoice> findByCustomerName(String customerName) {
+    //     return invoiceRepository.findByCustomerNameContaining(customerName);
     }
 
     @Override

@@ -3,7 +3,6 @@ package com.midterm.group4.service.impl;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +15,7 @@ import org.springframework.data.domain.Sort;
 
 import com.midterm.group4.data.model.Product;
 import com.midterm.group4.data.repository.ProductRepository;
+import com.midterm.group4.exception.ObjectNotFoundException;
 import com.midterm.group4.service.ProductService;
 
 @Service
@@ -36,9 +36,8 @@ public class ProductServiceImpl implements ProductService{
     @Override
     @Transactional
     public Product findById(UUID id) {
-        Optional<Product> optProduct = productRepository.findById(id);
-        if (optProduct.isPresent()) return optProduct.get();
-        return null;
+        return productRepository.findById(id)
+            .orElseThrow(() -> new ObjectNotFoundException("Product not found with ID: " + id));
     }
 
     @Override
@@ -101,8 +100,9 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     @Transactional
-    public List<Product> saveAll(List<Product> products) {
-        return productRepository.saveAll(products);
+    public void saveAll(List<Product> products) {
+        List<Product> saved = productRepository.saveAll(products);
+        return;
     }
 
 }
