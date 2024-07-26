@@ -13,11 +13,40 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import com.midterm.group4.data.model.Invoice;
 
-import com.midterm.group4.data.model.Invoice;
-
 @Repository
 public interface InvoiceRepository extends JpaRepository<Invoice, UUID> {
 
+
+    @Query("SELECT i FROM Invoice i WHERE i.customer.firstName LIKE %:customerName% OR i.customer.lastName LIKE %:customerName%")
+    Page<Invoice> findAllByCustomerName(@Param("customerName") String customerName, Pageable pageable);
+
+    @Query("SELECT i FROM Invoice i WHERE i.customer.id = :customerId")
+    Page<Invoice> findAllByCustomerId(@Param("customerId") UUID customerId, Pageable pageable);
+
+    @Query("SELECT i FROM Invoice i WHERE FUNCTION('DATE', i.invoiceDate) = :invoiceDate")
+    Page<Invoice> findAllByInvoiceDate(@Param("invoiceDate") String invoiceDate, Pageable pageable);
+
+    @Query("SELECT i FROM Invoice i WHERE FUNCTION('MONTH', i.invoiceDate) = :month")
+    Page<Invoice> findAllByMonth(@Param("month") String month, Pageable pageable);
+
+    @Query("SELECT i FROM Invoice i WHERE i.customer.id = :customerId AND FUNCTION('DATE', i.invoiceDate) = :invoiceDate")
+    Page<Invoice> findAllByCustomerIdAndInvoiceDate(@Param("customerId") UUID customerId, @Param("invoiceDate") String invoiceDate, Pageable pageable);
+
+    @Query("SELECT i FROM Invoice i WHERE i.customer.id = :customerId AND FUNCTION('MONTH', i.invoiceDate) = :month")
+    Page<Invoice> findAllByCustomerIdAndMonth(@Param("customerId") UUID customerId, @Param("month") String month, Pageable pageable);
+    
+    @Query("SELECT i FROM Invoice i WHERE FUNCTION('DATE', i.invoiceDate) = :invoiceDate AND FUNCTION('MONTH', i.invoiceDate) = :month")
+    Page<Invoice> findAllByInvoiceDateAndMonth(@Param("invoiceDate") String invoiceDate, @Param("month") String month, Pageable pageable);
+
+    @Query("SELECT i FROM Invoice i " +
+        "WHERE (:customerId IS NULL OR i.customer.id = :customerId) " +
+        "AND (:invoiceDate IS NULL OR FUNCTION('DATE', i.invoiceDate) = :invoiceDate) " +
+        "AND (:month IS NULL OR FUNCTION('MONTH', i.invoiceDate) = :month)")
+    Page<Invoice> findAllFiltered(@Param("customerId") UUID customerId,
+                            @Param("invoiceDate") String invoiceDate,
+                            @Param("month") String month,
+                            Pageable pageable);
+// =======
     Page<Invoice> findByInvoiceDate(LocalDate invoiceDate, Pageable pageable);
 
     @Query("SELECT i FROM Invoice i WHERE FUNCTION('MONTH', i.invoiceDate) = :month")
@@ -52,5 +81,4 @@ public interface InvoiceRepository extends JpaRepository<Invoice, UUID> {
 
     @Query("SELECT i FROM Invoice i WHERE i.customer.customerId = :customerId")
     List<Invoice> findByCustomer(UUID customerId);
-
 }

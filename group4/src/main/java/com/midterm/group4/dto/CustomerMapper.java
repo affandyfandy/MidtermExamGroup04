@@ -1,20 +1,21 @@
 package com.midterm.group4.dto;
 
 import java.util.List;
-import java.util.stream.Collectors;
-
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-
 import com.midterm.group4.data.model.Customer;
+import com.midterm.group4.dto.request.CreateCustomerDTO;
+import com.midterm.group4.dto.response.ReadCustomerDTO;
+import com.midterm.group4.dto.response.ReadCustomerOrderDTO;
 
 @Mapper(componentModel = "spring", uses = {InvoiceMapper.class})
 public interface CustomerMapper {
-    @Mapping(target = "customerId", ignore = true)
-    Customer toEntity(CustomerDTO dto);
-    
-    CustomerDTO toDto(Customer customer);
-    List<CustomerDTO> toListDto(List<Customer> customers);
+
+    ReadCustomerDTO toReadDto(Customer customer);
+
+    Customer toEntity(CreateCustomerDTO customerDTO);
+
+    List<ReadCustomerDTO> toListReadDto(List<Customer> customers);
+   
+    ReadCustomerOrderDTO toReadCustomerOrderDto(Customer customer);
 }

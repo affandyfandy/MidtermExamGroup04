@@ -1,6 +1,8 @@
 package com.midterm.group4.service.impl;
 
+import java.io.IOException;
 import java.math.BigInteger;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -9,9 +11,10 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.midterm.group4.data.model.OrderItem;
 import com.midterm.group4.data.model.Customer;
 import com.midterm.group4.data.repository.OrderItemRepository;
-import com.midterm.group4.dto.InvoiceDTO;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,14 +22,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.ArrayList;
 
 import com.midterm.group4.data.model.Invoice;
-import com.midterm.group4.data.model.OrderItem;
+import com.midterm.group4.data.model.Product;
+import com.midterm.group4.data.repository.CustomerRepository;
 import com.midterm.group4.data.repository.InvoiceRepository;
-import com.midterm.group4.service.CustomerService;
+import com.midterm.group4.data.repository.ProductRepository;
+import com.midterm.group4.exception.ObjectNotFoundException;
 import com.midterm.group4.service.InvoiceService;
-import com.midterm.group4.dto.InvoiceDTO;
-import com.midterm.group4.dto.InvoiceMapper;
+import com.midterm.group4.service.ProductService;
+import com.midterm.group4.utils.DocumentUtils;
 
 @Service
 public class InvoiceServiceImpl implements InvoiceService {
@@ -35,20 +41,36 @@ public class InvoiceServiceImpl implements InvoiceService {
     private InvoiceRepository invoiceRepository;
 
     @Autowired
-    private CustomerService customerService;
+    private ProductRepository productRepository;
 
     @Autowired
-    private InvoiceMapper invoiceMapper;
+    private ProductService productService;
 
     @Autowired
     private OrderItemRepository orderItemRepository;
+
+    @Autowired
+    private DocumentUtils documentUtils;
+
+    @Autowired
+    private CustomerRepository customerRepository;
 
     @Override
     @Transactional
     public Page<Invoice> findAllSorted(int pageNo, int pageSize, String sortBy, String sortOrder) {
         Sort sort = Sort.by(Sort.Direction.fromOptionalString(sortOrder).orElse(Sort.Direction.ASC), sortBy);
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
-        return invoiceRepository.findAll(pageable);
+        Page<Invoice> invoices = invoiceRepository.findAll(pageable);
+
+        invoices.forEach(invoice -> {
+            BigInteger totalAmount = BigInteger.ZERO;
+            for (OrderItem item : invoice.getListOrderItem()) {
+                totalAmount = totalAmount.add(item.getAmount());
+            }
+            invoice.setTotalAmount(totalAmount);
+        });
+
+        return invoices;
     }
 
     @Override
@@ -77,11 +99,10 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Override
     @Transactional
     public Invoice findById(UUID id) {
-        Optional<Invoice> optInvoice = invoiceRepository.findById(id);
-        if (optInvoice.isPresent()) return optInvoice.get();
-        return null;
+        return invoiceRepository.findById(id)
+            .orElseThrow(() -> new ObjectNotFoundException("Invoice not found with ID: " + id));
     }
-
+        
     @Override
     @Transactional
     public Invoice save(Invoice invoice) {
@@ -98,28 +119,232 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     @Transactional
-    public Invoice update(UUID id, Invoice invoice) {
+    public Invoice update(UUID id, Invoice invoice, List<OrderItem> listOrderItem) {
+        // Find the invoice to be updated
         Invoice findInvoice = findById(id);
-        if (findInvoice != null){
-            findInvoice.setUpdatedTime(invoice.getUpdatedTime());
-            findInvoice.setTotalAmount(invoice.getTotalAmount());
-            invoiceRepository.save(findInvoice);
+        if (findInvoice == null) return null;
+    
+        // Check if the invoice can be edited based on the creation time
+        LocalDateTime createdTime = findInvoice.getCreatedTime();
+        LocalDateTime currentTime = LocalDateTime.now();
+        Duration duration = Duration.between(createdTime, currentTime);
+        if (duration.toMinutes() > 10) {
+            throw new IllegalArgumentException("Invoice can't be edited");
         }
+    
+        // Create a map for existing order items to facilitate quick lookups
+        Map<UUID, OrderItem> currentOrderItemsMap = findInvoice.getListOrderItem().stream()
+            .collect(Collectors.toMap(orderItem -> orderItem.getProduct().getProductId(), orderItem -> orderItem));
+    
+        // Initialize total amount and updated order items list
+        BigInteger totalAmount = BigInteger.ZERO;
+        List<OrderItem> updatedOrderItems = new ArrayList<>();
+    
+        // Process new order items
+        for (OrderItem newOrderItem : listOrderItem) {
+            UUID productId = newOrderItem.getProduct().getProductId();
+            Product product = productService.findById(productId);
+    
+            if (product == null) {
+                throw new IllegalArgumentException("Product does not exist");
+            }
+            if (!product.isActive()) {
+                throw new IllegalArgumentException("Product is not active");
+            }
+            if (product.getQuantity() < newOrderItem.getQuantity()) {
+                throw new IllegalArgumentException("Insufficient product quantity");
+            }
+    
+            BigInteger quantity = BigInteger.valueOf(newOrderItem.getQuantity());
+            BigInteger price = product.getPrice();
+            BigInteger amount = price.multiply(quantity);
+    
+            // Update the product quantity
+            product.setQuantity(product.getQuantity() - newOrderItem.getQuantity());
+            productRepository.save(product);
+    
+            // Check if the product is already in the invoice
+            if (currentOrderItemsMap.containsKey(productId)) {
+                // Update existing order item
+                OrderItem existingOrderItem = currentOrderItemsMap.get(productId);
+                BigInteger oldAmount = existingOrderItem.getAmount();
+                existingOrderItem.setQuantity(newOrderItem.getQuantity());
+                existingOrderItem.setAmount(amount);
+                updatedOrderItems.add(existingOrderItem);
+    
+                // Adjust the total amount by subtracting the old amount and adding the new amount
+                totalAmount = totalAmount.add(amount).subtract(oldAmount);
+            } else {
+                // Add new order item
+                newOrderItem.setAmount(amount);
+                newOrderItem.setInvoice(findInvoice);
+                newOrderItem.setProduct(product);
+                updatedOrderItems.add(newOrderItem);
+    
+                // Add the new amount to the total
+                totalAmount = totalAmount.add(amount);
+            }
+        }
+    
+        // Identify and process removed order items
+        List<OrderItem> removedOrderItems = findInvoice.getListOrderItem().stream()
+            .filter(orderItem -> !listOrderItem.stream()
+            .anyMatch(newOrderItem -> newOrderItem.getProduct().getProductId().equals(orderItem.getProduct().getProductId())))
+            .collect(Collectors.toList());
+    
+        for (OrderItem removedOrderItem : removedOrderItems) {
+            UUID productId = removedOrderItem.getProduct().getProductId();
+            Product product = productService.findById(productId);
+    
+            if (product != null) {
+                // Add the quantity of the removed item back to the product inventory
+                product.setQuantity(product.getQuantity() + removedOrderItem.getQuantity());
+                productRepository.save(product);
+            }
+    
+            // Adjust the total amount by subtracting the removed item's amount
+            totalAmount = totalAmount.subtract(removedOrderItem.getAmount());
+        }
+    
+        // Update the invoice with new total amount and order items
+        findInvoice.setTotalAmount(totalAmount);
+        findInvoice.getListOrderItem().clear();
+        findInvoice.getListOrderItem().addAll(updatedOrderItems);
+    
+        // Save updated invoice and order items
+        invoiceRepository.save(findInvoice);
+        orderItemRepository.saveAll(updatedOrderItems);
+    
         return findInvoice;
     }
 
+    @Override
     @Transactional
-    public Invoice createInvoice(InvoiceDTO invoiceDto) {
-        Customer customer = customerService.findById(invoiceDto.getCustomerId());
-        Invoice invoice = invoiceMapper.toEntity(invoiceDto);
+    public byte[] generateToPdf(UUID id) throws IOException {
+        Invoice invoice = findById(id);
+        if (invoice != null){
+            byte[] pdfBytes = documentUtils.generateByteInvoice(invoice);
+            return pdfBytes;
+        }
+        return null;
+    }
+
+    @Override
+    @Transactional
+    public Page<Invoice> findAllFiltered(int pageNo, int pageSize, String sortBy, String sortOrder, UUID customerId, String invoiceDate, String month) {
+        Sort.Direction direction = "desc".equalsIgnoreCase(sortOrder) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Sort sort = Sort.by(direction, sortBy);
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+
+        Page<Invoice> invoices;
+
+        if (customerId != null && invoiceDate != null && month != null) {
+            // All filters applied
+            invoices = invoiceRepository.findAllFiltered(customerId, invoiceDate, month, pageable);
+        } else if (customerId != null && invoiceDate != null) {
+            // Customer and date filters applied
+            invoices = invoiceRepository.findAllByCustomerIdAndInvoiceDate(customerId, invoiceDate, pageable);
+        } else if (customerId != null && month != null) {
+            // Customer and month filters applied
+            invoices = invoiceRepository.findAllByCustomerIdAndMonth(customerId, month, pageable);
+        } else if (invoiceDate != null && month != null) {
+            // Date and month filters applied
+            invoices = invoiceRepository.findAllByInvoiceDateAndMonth(invoiceDate, month, pageable);
+        } else if (customerId != null) {
+            // Only customer filter applied
+            invoices = invoiceRepository.findAllByCustomerId(customerId, pageable);
+        } else if (invoiceDate != null) {
+            // Only date filter applied
+            invoices = invoiceRepository.findAllByInvoiceDate(invoiceDate, pageable);
+        } else if (month != null) {
+            // Only month filter applied
+            invoices = invoiceRepository.findAllByMonth(month, pageable);
+        } else {
+            // No filters applied
+            invoices = invoiceRepository.findAll(pageable);
+        }
+
+        invoices.forEach(invoice -> {
+            BigInteger totalAmount = BigInteger.ZERO;
+            for (OrderItem item : invoice.getListOrderItem()) {
+                totalAmount = totalAmount.add(item.getAmount());
+            }
+            invoice.setTotalAmount(totalAmount);
+        });
+
+        return invoices;
+    }
+
+
+    @Override
+    @Transactional
+    public Invoice createInvoice(Invoice invoice, List<OrderItem> listOrderItem) {
+        if (invoice.getListOrderItem() == null){
+            invoice.setListOrderItem(new ArrayList<>());
+        }
+
+        List<OrderItem> newOrderItems = new ArrayList<>();
+
+        Optional<Customer> cust = customerRepository.findById(invoice.getCustomer().getCustomerId());
+
+        Customer customer;
+        if (cust.isPresent()){
+            customer = cust.get();
+            if (!customer.isActive()) throw new IllegalArgumentException("Customer is deactive");
+        }
+        else {
+            throw new IllegalArgumentException("Customer doesn't exist");
+        }
+
+        BigInteger totalAmount = BigInteger.ZERO;
+
+        for (OrderItem orderItem : listOrderItem){
+
+            Product product = productService.findById(orderItem.getProduct().getProductId());
+            if (!product.isActive()) {
+                throw new IllegalArgumentException("Product is not active");
+            }
+            else if (product.getQuantity() < orderItem.getQuantity()){
+                throw new IllegalArgumentException("Insuffient product quantity");
+            }
+
+            BigInteger qty = BigInteger.valueOf(orderItem.getQuantity());
+            BigInteger price = product.getPrice();
+            BigInteger amount = price.multiply(qty);
+            orderItem.setAmount(amount);
+
+            orderItem.setInvoice(invoice);
+            orderItem.setProduct(product);
+
+            Integer qtyRemain = product.getQuantity() - orderItem.getQuantity();
+            product.setQuantity(qtyRemain);
+
+            newOrderItems.add(orderItem);
+
+            totalAmount = totalAmount.add(amount);
+
+            productRepository.save(product);
+        }
+
+        orderItemRepository.saveAll(newOrderItems);
+
+        invoice.setListOrderItem(newOrderItems);
+        invoice.setInvoiceDate(LocalDate.now());
         invoice.setCustomer(customer);
+        invoice.setTotalAmount(totalAmount);
+
         return invoiceRepository.save(invoice);
     }
 
     @Override
     @Transactional
-    public List<Invoice> findByCustomerName(String customerName) {
-        return invoiceRepository.findByCustomerNameContaining(customerName);
+    public Page<Invoice> findAllByCustomerName(int pageNo, int pageSize, String sortBy, String sortOrder, String name) {
+        Sort.Direction direction = "desc".equalsIgnoreCase(sortOrder) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Sort sort = Sort.by(direction,sortBy);
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        return invoiceRepository.findAllByCustomerName(name, pageable);
+    // public List<Invoice> findByCustomerName(String customerName) {
+    //     return invoiceRepository.findByCustomerNameContaining(customerName);
     }
 
     @Override

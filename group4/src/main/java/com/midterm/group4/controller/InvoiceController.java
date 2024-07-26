@@ -1,31 +1,29 @@
 package com.midterm.group4.controller;
 
-import com.midterm.group4.data.repository.InvoiceRepository;
-import com.midterm.group4.data.repository.OrderItemRepository;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RestController;
 import com.midterm.group4.data.model.Invoice;
-import com.midterm.group4.dto.InvoiceDTO;
+import com.midterm.group4.data.model.OrderItem;
 import com.midterm.group4.dto.InvoiceMapper;
+import com.midterm.group4.dto.OrderItemMapper;
+import com.midterm.group4.dto.request.CreateInvoiceDTO;
+import com.midterm.group4.dto.response.ReadInvoiceDTO;
+import com.midterm.group4.exception.ObjectNotFoundException;
 import com.midterm.group4.service.InvoiceService;
+
+import java.io.IOException;
+
 import com.midterm.group4.service.ExcelExportService;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -56,10 +54,7 @@ public class InvoiceController {
     private InvoiceMapper invoiceMapper;
 
     @Autowired
-    private InvoiceRepository invoiceRepository;
-
-    @Autowired
-    private OrderItemRepository orderItemRepository;
+    private OrderItemMapper orderItemMapper;
 
     @Autowired
     private ExcelExportService excelExportService;
@@ -68,29 +63,20 @@ public class InvoiceController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful retrieval of invoices")
     })
-    @GetMapping("/sort")
-    public ResponseEntity<List<InvoiceDTO>> getAllInvoiceSort(
-            @RequestParam(defaultValue = "0", required = false) int pageNo,
-            @RequestParam(defaultValue = "10", required = false) int pageSize,
-            @RequestParam(defaultValue = "asc", required = false) String sortOrder,
-            @RequestParam(required = true) String sortBy
+    @GetMapping
+    public ResponseEntity<Page<ReadInvoiceDTO>> getAllInvoice(
+        @RequestParam(defaultValue = "0", required = false) int pageNo,
+        @RequestParam(defaultValue = "10", required = false) int pageSize,
+        @RequestParam(defaultValue = "asc", required = false ) String sortOrder,
+        @RequestParam(defaultValue = "totalAmount", required = false) String sortBy
+
     ) {
         Page<Invoice> pageInvoice = invoiceService.findAllSorted(pageNo, pageSize, sortBy, sortOrder);
-        return ResponseEntity.status(HttpStatus.OK).body(invoiceMapper.toListDto(pageInvoice.getContent()));
-    }
-
-    @Operation(summary = "Get all invoices", description = "Retrieve all invoices with pagination and sorting")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successful retrieval of invoices")
-    })
-    @GetMapping
-    public ResponseEntity<List<InvoiceDTO>> getAllInvoice(
-            @RequestParam(defaultValue = "0", required = false) int pageNo,
-            @RequestParam(defaultValue = "10", required = false) int pageSize,
-            @RequestParam(defaultValue = "asc", required = false) String sortOrder
-    ) {
-        Page<Invoice> pageInvoice = invoiceService.findAll(pageNo, pageSize, sortOrder);
-        return ResponseEntity.status(HttpStatus.OK).body(invoiceMapper.toListDto(pageInvoice.getContent()));
+        List<ReadInvoiceDTO> invoiceDTOs = pageInvoice.getContent().stream()
+            .map(invoice -> invoiceMapper.toReadInvoiceDto(invoice))
+            .collect(Collectors.toList());
+        Page<ReadInvoiceDTO> pageInvoiceDTO = new PageImpl<>(invoiceDTOs, pageInvoice.getPageable(), pageInvoice.getTotalElements());
+        return ResponseEntity.status(HttpStatus.OK).body(pageInvoiceDTO);
     }
 
     @Operation(summary = "Filter invoices", description = "Filter invoices by date or month with pagination and sorting")
@@ -99,22 +85,21 @@ public class InvoiceController {
             @ApiResponse(responseCode = "400", description = "Invalid request if neither date nor month is provided")
     })
     @GetMapping("/filter")
-    public ResponseEntity<List<InvoiceDTO>> getInvoiceByFilter(
-            @RequestParam(defaultValue = "0", required = false) int pageNo,
-            @RequestParam(defaultValue = "10", required = false) int pageSize,
-            @RequestParam(defaultValue = "asc", required = false) String sortOrder,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate invoiceDate,
-            @RequestParam(required = false) Integer month
+    public ResponseEntity<Page<ReadInvoiceDTO>> filterInvoice(
+        @RequestParam(defaultValue = "0", required = false) int pageNo,
+        @RequestParam(defaultValue = "10", required = false) int pageSize,
+        @RequestParam(defaultValue = "asc", required = false ) String sortOrder,
+        @RequestParam(defaultValue = "totalAmount", required = false) String sortBy,
+        @RequestParam(value = "customerId", required = false) UUID customerId,
+        @RequestParam(value = "invoiceDate", required = false) String invoiceDate,
+        @RequestParam(value = "month", required = false) String month
     ) {
-        Page<Invoice> pageInvoice;
-        if (invoiceDate != null) {
-            pageInvoice = invoiceService.findAllByDate(pageNo, pageSize, invoiceDate, sortOrder);
-        } else if (month != null) {
-            pageInvoice = invoiceService.findAllByMonth(pageNo, pageSize, month, sortOrder);
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null); // Invalid request if neither is provided
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(invoiceMapper.toListDto(pageInvoice.getContent()));
+        Page<Invoice> pageInvoice = invoiceService.findAllFiltered(pageNo, pageSize, sortBy, sortOrder, customerId, invoiceDate, month);
+        List<ReadInvoiceDTO> invoiceDTOs = pageInvoice.getContent().stream()
+            .map(invoice -> invoiceMapper.toReadInvoiceDto(invoice))
+            .collect(Collectors.toList());
+        Page<ReadInvoiceDTO> pageInvoiceDTO = new PageImpl<>(invoiceDTOs, pageInvoice.getPageable(), pageInvoice.getTotalElements());
+        return ResponseEntity.status(HttpStatus.OK).body(pageInvoiceDTO);
     }
 
     @Operation(summary = "Search invoices by customer name", description = "Search invoices by customer name with pagination and sorting")
@@ -123,20 +108,23 @@ public class InvoiceController {
             @ApiResponse(responseCode = "400", description = "Invalid request if customer name is not provided")
     })
     @GetMapping("/search")
-    public ResponseEntity<List<InvoiceDTO>> getInvoiceByCustomerName(
+    public ResponseEntity<Page<ReadInvoiceDTO>> getInvoiceByCustomerName(
             @RequestParam(defaultValue = "0", required = false) int pageNo,
             @RequestParam(defaultValue = "10", required = false) int pageSize,
             @RequestParam(defaultValue = "asc", required = false) String sortOrder,
+            @RequestParam(defaultValue = "totalAmount", required = false) String sortBy,
             @RequestParam(required = true) String customerName
     ) {
-        Page<Invoice> pageInvoice;
         if (customerName != null && !customerName.isEmpty()) {
-            List<Invoice> invoices = invoiceService.findByCustomerName(customerName);
-            pageInvoice = new PageImpl<>(invoices); // Convert to Page if needed
+            Page<Invoice> pageInvoice = invoiceService.findAllByCustomerName(pageNo, pageSize, sortBy, sortOrder, customerName);
+            List<ReadInvoiceDTO> invoiceDTOs = pageInvoice.getContent().stream()
+                .map(invoice -> invoiceMapper.toReadInvoiceDto(invoice))
+                .collect(Collectors.toList());
+            Page<ReadInvoiceDTO> pageInvoiceDTO = new PageImpl<>(invoiceDTOs, pageInvoice.getPageable(), pageInvoice.getTotalElements());
+            return ResponseEntity.status(HttpStatus.OK).body(pageInvoiceDTO);
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null); // Invalid request if customer name is not provided
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
-        return ResponseEntity.status(HttpStatus.OK).body(invoiceMapper.toListDto(pageInvoice.getContent()));
     }
 
     @Operation(summary = "Get invoice by ID", description = "Retrieve an invoice by its ID")
@@ -145,9 +133,9 @@ public class InvoiceController {
             @ApiResponse(responseCode = "404", description = "Invoice not found")
     })
     @GetMapping("/{id}")
-    public ResponseEntity<InvoiceDTO> getInvoiceById(@PathVariable UUID id) {
+    public ResponseEntity<ReadInvoiceDTO> getInvoiceById(@PathVariable UUID id)throws ObjectNotFoundException  {
         Invoice invoice = invoiceService.findById(id);
-        return ResponseEntity.status(HttpStatus.OK).body(invoiceMapper.toDto(invoice));
+        return ResponseEntity.status(HttpStatus.OK).body(invoiceMapper.toReadInvoiceDto(invoice));
     }
 
     @Operation(summary = "Update invoice", description = "Update an existing invoice by its ID")
@@ -156,10 +144,11 @@ public class InvoiceController {
             @ApiResponse(responseCode = "404", description = "Invoice not found")
     })
     @PutMapping("/{id}")
-    public ResponseEntity<InvoiceDTO> updateInvoice(@PathVariable UUID id, @RequestBody InvoiceDTO invoiceDto) {
+    public ResponseEntity<ReadInvoiceDTO> updateInvoice(@PathVariable UUID id, @RequestBody CreateInvoiceDTO invoiceDto) throws ObjectNotFoundException {
+        List<OrderItem> listOrderItem = orderItemMapper.toListEntity(invoiceDto.getListOrderItem());
         Invoice invoice = invoiceMapper.toEntity(invoiceDto);
-        Invoice updatedInvoice = invoiceService.update(id, invoice);
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(invoiceMapper.toDto(updatedInvoice));
+        Invoice updatedInvoice = invoiceService.update(id, invoice, listOrderItem);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(invoiceMapper.toReadInvoiceDto(updatedInvoice));
     }
 
     @Operation(summary = "Create new invoice", description = "Create a new invoice")
@@ -167,10 +156,24 @@ public class InvoiceController {
             @ApiResponse(responseCode = "202", description = "Invoice created successfully")
     })
     @PostMapping
-    public ResponseEntity<InvoiceDTO> addNewInvoice(@RequestBody InvoiceDTO invoiceDto) {
+    public ResponseEntity<ReadInvoiceDTO> addNewInvoice(@RequestBody CreateInvoiceDTO invoiceDto) {
+        List<OrderItem> listOrderItem = orderItemMapper.toListEntity(invoiceDto.getListOrderItem());
         Invoice invoice = invoiceMapper.toEntity(invoiceDto);
-        Invoice newInvoice = invoiceService.save(invoice);
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(invoiceMapper.toDto(newInvoice));
+        Invoice newInvoice = invoiceService.createInvoice(invoice, listOrderItem);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(invoiceMapper.toReadInvoiceDto(newInvoice));
+    }
+
+    @Operation(summary = "Download invoice", description = "Generate invoice detail to pdf")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Invoice downloaded successfully")
+    })
+    @GetMapping("/{id}/export")
+    public ResponseEntity<?> download(@PathVariable UUID id) throws IOException {
+        byte[] pdfBytes = invoiceService.generateToPdf(id);
+        return ResponseEntity.ok()
+            .contentType(MediaType.APPLICATION_PDF)
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=invoice.pdf")
+            .body(pdfBytes);
     }
 
     @Operation(summary = "Get report", description = "Get a report of invoices by date, month, or year")
@@ -185,7 +188,7 @@ public class InvoiceController {
             @RequestParam(required = false) Integer year) {
 
         if (date == null && month == null && year == null) {
-            return ResponseEntity.badRequest().body(Map.of("error", "At least one parameter (date, month, year) is required"));
+            return ResponseEntity.badRequest().body(Map.of("Error", "At least one parameter (date, month, year) is required"));
         }
 
         BigInteger totalAmountPerDay = date != null ? invoiceService.getTotalAmountPerDay(date) : null;
@@ -226,51 +229,8 @@ public class InvoiceController {
             @RequestParam(required = false) Integer year) throws IOException {
 
         List<Invoice> invoices = invoiceService.getInvoicesByFilter(customerId, month, year);
+        ByteArrayOutputStream outputStream = excelExportService.exportInvoice(invoices);
 
-        // Create a workbook and sheet
-        Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Invoices");
-
-        // Create header row
-        Row headerRow = sheet.createRow(0);
-        headerRow.createCell(0).setCellValue("Invoice ID");
-        headerRow.createCell(1).setCellValue("Customer ID");
-        headerRow.createCell(2).setCellValue("Customer Name");
-        headerRow.createCell(3).setCellValue("Total Amount");
-        headerRow.createCell(4).setCellValue("Products");
-
-        // Fill data rows
-        int rowNum = 1;
-        for (Invoice invoice : invoices) {
-            Row row = sheet.createRow(rowNum++);
-
-            row.createCell(0).setCellValue(invoice.getInvoiceId().toString());
-            row.createCell(1).setCellValue(invoice.getCustomer().getCustomerId().toString());
-            row.createCell(2).setCellValue(invoice.getCustomer().getFirstName() + " " + invoice.getCustomer().getLastName());
-            row.createCell(3).setCellValue(invoice.getTotalAmount().toString());
-
-            StringBuilder products = new StringBuilder();
-            invoice.getListOrderItem().forEach(orderItem -> {
-                BigDecimal quantity = BigDecimal.valueOf(orderItem.getQuantity());
-                BigDecimal price = new BigDecimal(orderItem.getProduct().getPrice().toString());
-                BigDecimal amount = quantity.multiply(price);
-
-                products.append("ID: ").append(orderItem.getProduct().getProductId().toString())
-                        .append(", Name: ").append(orderItem.getProduct().getName())
-                        .append(", Price: ").append(price.toString())
-                        .append(", Quantity: ").append(quantity.toString())
-                        .append(", Amount: ").append(amount.toString())
-                        .append("; ");
-            });
-            row.createCell(4).setCellValue(products.toString());
-        }
-
-        // Write to byte array output stream
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        workbook.write(outputStream);
-        workbook.close();
-
-        // Create response headers
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=invoices.xlsx");
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);

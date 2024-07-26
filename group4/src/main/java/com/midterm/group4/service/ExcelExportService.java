@@ -9,10 +9,59 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
 public class ExcelExportService {
+
+    public ByteArrayOutputStream exportInvoice(List<Invoice> invoices) throws IOException{
+
+        // Create a workbook and sheet
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Invoices");
+
+        // Create header row
+        Row headerRow = sheet.createRow(0);
+        headerRow.createCell(0).setCellValue("Invoice ID");
+        headerRow.createCell(1).setCellValue("Customer ID");
+        headerRow.createCell(2).setCellValue("Customer Name");
+        headerRow.createCell(3).setCellValue("Total Amount");
+        headerRow.createCell(4).setCellValue("Products");
+
+        // Fill data rows
+        int rowNum = 1;
+        for (Invoice invoice : invoices) {
+            Row row = sheet.createRow(rowNum++);
+
+            row.createCell(0).setCellValue(invoice.getInvoiceId().toString());
+            row.createCell(1).setCellValue(invoice.getCustomer().getCustomerId().toString());
+            row.createCell(2).setCellValue(invoice.getCustomer().getFirstName() + " " + invoice.getCustomer().getLastName());
+            row.createCell(3).setCellValue(invoice.getTotalAmount().toString());
+
+            StringBuilder products = new StringBuilder();
+            invoice.getListOrderItem().forEach(orderItem -> {
+                BigDecimal quantity = BigDecimal.valueOf(orderItem.getQuantity());
+                BigDecimal price = new BigDecimal(orderItem.getProduct().getPrice().toString());
+                BigDecimal amount = quantity.multiply(price);
+
+                products.append("ID: ").append(orderItem.getProduct().getProductId().toString())
+                        .append(", Name: ").append(orderItem.getProduct().getName())
+                        .append(", Price: ").append(price.toString())
+                        .append(", Quantity: ").append(quantity.toString())
+                        .append(", Amount: ").append(amount.toString())
+                        .append("; ");
+            });
+            row.createCell(4).setCellValue(products.toString());
+        }
+
+        // Write to byte array output stream
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        workbook.write(outputStream);
+        workbook.close();
+
+        return outputStream;
+    }
 
     public ByteArrayInputStream exportInvoicesToExcel(List<Invoice> invoices) {
         try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {

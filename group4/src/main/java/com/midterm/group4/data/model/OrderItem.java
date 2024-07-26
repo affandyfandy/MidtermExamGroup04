@@ -8,6 +8,8 @@ import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -34,10 +36,12 @@ public class OrderItem {
 
     @ManyToOne
     @JoinColumn(name = "invoiceId")
+    @JsonIgnore
     private Invoice invoice;
 
     @ManyToOne
-    @JoinColumn(name = "productId", nullable = false)
+    @JoinColumn(name = "productId")
+    @JsonIgnore
     private Product product;
 
     @PrePersist
@@ -45,5 +49,12 @@ public class OrderItem {
         if (orderItemId == null) {
             orderItemId = UUID.randomUUID();
         }
+        createdTime = LocalDateTime.now();
+        updatedTime = LocalDateTime.now();
+    }
+    
+    @PostUpdate
+    protected void onUpdate() {
+        updatedTime = LocalDateTime.now();
     }
 }

@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,9 +13,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PostUpdate;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -50,6 +51,7 @@ public class Customer {
     private boolean isActive;
 
     @OneToMany(mappedBy = "customer", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Invoice> listInvoice;
 
     @PrePersist
@@ -57,5 +59,12 @@ public class Customer {
         if (customerId == null) {
             customerId = UUID.randomUUID();
         }
+        createdTime = LocalDateTime.now();
+        updatedTime = LocalDateTime.now();
+    }
+
+    @PostUpdate
+    protected void onUpdate() {
+        updatedTime = LocalDateTime.now();
     }
 }

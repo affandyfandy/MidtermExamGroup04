@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -36,13 +37,24 @@ public class Invoice {
     private LocalDateTime updatedTime;
 
     @ManyToOne
-    @JoinColumn(name = "customer_id", nullable = false)
+    @JsonIgnore
+    @JoinColumn(name = "customer_id")
     private Customer customer;
 
     @OneToMany(mappedBy = "invoice", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<OrderItem> listOrderItem;
 
-    @PreUpdate
+    @PrePersist
+    protected void onCreate() {
+        if (invoiceId == null) {
+            invoiceId = UUID.randomUUID();
+        }
+        createdTime = LocalDateTime.now();
+        updatedTime = LocalDateTime.now();
+    }
+
+    @PostUpdate
     protected void onUpdate() {
         updatedTime = LocalDateTime.now();
     }
