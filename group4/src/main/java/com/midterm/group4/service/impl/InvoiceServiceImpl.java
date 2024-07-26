@@ -59,7 +59,17 @@ public class InvoiceServiceImpl implements InvoiceService {
     public Page<Invoice> findAllSorted(int pageNo, int pageSize, String sortBy, String sortOrder) {
         Sort sort = Sort.by(Sort.Direction.fromOptionalString(sortOrder).orElse(Sort.Direction.ASC), sortBy);
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
-        return invoiceRepository.findAll(pageable);
+        Page<Invoice> invoices = invoiceRepository.findAll(pageable);
+
+        invoices.forEach(invoice -> {
+            BigInteger totalAmount = BigInteger.ZERO;
+            for (OrderItem item : invoice.getListOrderItem()) {
+                totalAmount = totalAmount.add(item.getAmount());
+            }
+            invoice.setTotalAmount(totalAmount);
+        });
+
+        return invoices;
     }
 
     @Override
@@ -221,40 +231,50 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     @Transactional
-    public Page<Invoice> findAllFiltered(int pageNo, int pageSize, String sortBy, String sortOrder, UUID customerId,
-            String invoiceDate, String month) {
-
-        // String findSortColumn = findSortBy(sortBy);
+    public Page<Invoice> findAllFiltered(int pageNo, int pageSize, String sortBy, String sortOrder, UUID customerId, String invoiceDate, String month) {
         Sort.Direction direction = "desc".equalsIgnoreCase(sortOrder) ? Sort.Direction.DESC : Sort.Direction.ASC;
-        Sort sort = Sort.by(direction,sortBy);
+        Sort sort = Sort.by(direction, sortBy);
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+
+        Page<Invoice> invoices;
 
         if (customerId != null && invoiceDate != null && month != null) {
             // All filters applied
-            return invoiceRepository.findAllFiltered(customerId, invoiceDate, month, pageable);
+            invoices = invoiceRepository.findAllFiltered(customerId, invoiceDate, month, pageable);
         } else if (customerId != null && invoiceDate != null) {
             // Customer and date filters applied
-            return invoiceRepository.findAllByCustomerIdAndInvoiceDate(customerId, invoiceDate, pageable);
+            invoices = invoiceRepository.findAllByCustomerIdAndInvoiceDate(customerId, invoiceDate, pageable);
         } else if (customerId != null && month != null) {
             // Customer and month filters applied
-            return invoiceRepository.findAllByCustomerIdAndMonth(customerId, month, pageable);
+            invoices = invoiceRepository.findAllByCustomerIdAndMonth(customerId, month, pageable);
         } else if (invoiceDate != null && month != null) {
             // Date and month filters applied
-            return invoiceRepository.findAllByInvoiceDateAndMonth(invoiceDate, month, pageable);
+            invoices = invoiceRepository.findAllByInvoiceDateAndMonth(invoiceDate, month, pageable);
         } else if (customerId != null) {
             // Only customer filter applied
-            return invoiceRepository.findAllByCustomerId(customerId, pageable);
+            invoices = invoiceRepository.findAllByCustomerId(customerId, pageable);
         } else if (invoiceDate != null) {
             // Only date filter applied
-            return invoiceRepository.findAllByInvoiceDate(invoiceDate, pageable);
+            invoices = invoiceRepository.findAllByInvoiceDate(invoiceDate, pageable);
         } else if (month != null) {
             // Only month filter applied
-            return invoiceRepository.findAllByMonth(month, pageable);
+            invoices = invoiceRepository.findAllByMonth(month, pageable);
         } else {
             // No filters applied
-            return invoiceRepository.findAll(pageable);
+            invoices = invoiceRepository.findAll(pageable);
         }
+
+        invoices.forEach(invoice -> {
+            BigInteger totalAmount = BigInteger.ZERO;
+            for (OrderItem item : invoice.getListOrderItem()) {
+                totalAmount = totalAmount.add(item.getAmount());
+            }
+            invoice.setTotalAmount(totalAmount);
+        });
+
+        return invoices;
     }
+
 
     @Override
     @Transactional
