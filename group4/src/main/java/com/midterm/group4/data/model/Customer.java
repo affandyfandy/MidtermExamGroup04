@@ -54,7 +54,7 @@ public class Customer {
     private boolean isActive;
 
     @OneToMany(mappedBy = "customer", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JsonManagedReference
+    @JsonIgnore
     private List<Invoice> listInvoice;
 
     @PrePersist

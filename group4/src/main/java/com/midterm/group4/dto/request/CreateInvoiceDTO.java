@@ -1,8 +1,6 @@
 package com.midterm.group4.dto.request;
 
-import org.hibernate.validator.constraints.UUID;
-
-import com.midterm.group4.dto.response.ReadOrderItemDTO;
+import java.util.UUID;
 
 import java.util.List;
 import lombok.AllArgsConstructor;

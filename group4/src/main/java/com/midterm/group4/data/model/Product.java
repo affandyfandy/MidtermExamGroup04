@@ -55,7 +55,7 @@ public class Product{
     private LocalDateTime updatedTime;
 
     @OneToMany(mappedBy = "product", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JsonManagedReference
+    @JsonIgnore
     private List<OrderItem> listOrderItem;
 
     @PrePersist

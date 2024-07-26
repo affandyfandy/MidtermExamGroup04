@@ -54,7 +54,7 @@ public class InvoiceController {
 
     @GetMapping("/filter")
     public ResponseEntity<List<ReadInvoiceDTO>> filterInvoice(
-        @RequestParam(defaultValue = "1", required = false) int pageNo,
+        @RequestParam(defaultValue = "0", required = false) int pageNo,
         @RequestParam(defaultValue = "10", required = false) int pageSize,
         @RequestParam(defaultValue = "asc", required = false ) String sortOrder,
         @RequestParam(defaultValue = "totalAmount", required = false) String sortBy,
@@ -63,6 +63,18 @@ public class InvoiceController {
         @RequestParam(value = "month", required = false) String month
     ) {
         Page<Invoice> pageInvoice = invoiceService.findAllFiltered(pageNo, pageSize, sortBy, sortOrder, customerId, invoiceDate, month);
+        return ResponseEntity.status(HttpStatus.OK).body(invoiceMapper.toListReadInvoiceDto(pageInvoice.getContent()));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<ReadInvoiceDTO>> filterInvoice(
+        @RequestParam(defaultValue = "0", required = false) int pageNo,
+        @RequestParam(defaultValue = "10", required = false) int pageSize,
+        @RequestParam(defaultValue = "asc", required = false ) String sortOrder,
+        @RequestParam(defaultValue = "totalAmount", required = false) String sortBy,
+        @RequestParam(value = "customerName", required = false) String name
+    ) {
+        Page<Invoice> pageInvoice = invoiceService.findAllByCustomerName(pageNo, pageSize, sortBy, sortOrder, name);
         return ResponseEntity.status(HttpStatus.OK).body(invoiceMapper.toListReadInvoiceDto(pageInvoice.getContent()));
     }
 

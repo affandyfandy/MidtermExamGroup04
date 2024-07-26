@@ -18,5 +18,6 @@ public interface InvoiceService {
     Invoice save(Invoice invoice);
     Invoice update(UUID id, Invoice invoice, List<OrderItem> listOrderItem);
     Invoice createInvoice(Invoice invoiceDto, List<OrderItem> listOrderItem);
+    Page<Invoice> findAllByCustomerName(int pageNo, int pageSize, String sortBy, String sortOrder, String name);
     byte[] generateToPdf(UUID id) throws IOException;
 }

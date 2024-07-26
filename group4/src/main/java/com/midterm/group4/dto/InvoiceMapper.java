@@ -25,5 +25,8 @@ public interface InvoiceMapper {
     
     List<ReadInvoiceDTO> toListReadInvoiceDto(List<Invoice> invoices);
 
+    @Mapping(target = "customer.customerId", source = "customerId")
     Invoice toEntity(CreateInvoiceDTO invoiceDto);
+
+
 }

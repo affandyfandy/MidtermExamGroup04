@@ -3,6 +3,7 @@ package com.midterm.group4.service.impl;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -20,8 +21,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
+
+import com.midterm.group4.data.model.Customer;
 import com.midterm.group4.data.model.Invoice;
 import com.midterm.group4.data.model.Product;
+import com.midterm.group4.data.repository.CustomerRepository;
 import com.midterm.group4.data.repository.InvoiceRepository;
 import com.midterm.group4.data.repository.OrderItemRepository;
 import com.midterm.group4.data.repository.ProductRepository;
@@ -37,9 +41,6 @@ public class InvoiceServiceImpl implements InvoiceService {
     private InvoiceRepository invoiceRepository;
 
     @Autowired
-    private CustomerService customerService;
-
-    @Autowired
     private ProductRepository productRepository;
 
     @Autowired
@@ -51,7 +52,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     private DocumentUtils documentUtils;
 
     @Autowired
-    private OrderItemService orderItemService;
+    private CustomerRepository customerRepository;
 
     @Override
     @Transactional
@@ -196,12 +197,19 @@ public class InvoiceServiceImpl implements InvoiceService {
         return null;
     }
 
+    // private String findSortBy(String sortBy){
+    //     if (sortBy.equals("invoiceDate")) return "invoice_date";
+    //     return "total_amount";
+    // }
 
     @Override
     @Transactional
     public Page<Invoice> findAllFiltered(int pageNo, int pageSize, String sortBy, String sortOrder, UUID customerId,
             String invoiceDate, String month) {
-        Sort sort = Sort.by(Sort.Direction.fromOptionalString(sortOrder).orElse(Sort.Direction.ASC), sortBy);
+
+        // String findSortColumn = findSortBy(sortBy);
+        Sort.Direction direction = "desc".equalsIgnoreCase(sortOrder) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Sort sort = Sort.by(direction,sortBy);
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
 
         if (customerId != null && invoiceDate != null && month != null) {
@@ -237,12 +245,23 @@ public class InvoiceServiceImpl implements InvoiceService {
         if (invoice.getListOrderItem() == null){
             invoice.setListOrderItem(new ArrayList<>());
         }
-        List<OrderItem> invoiceOrder = invoice.getListOrderItem();
+
         List<OrderItem> newOrderItems = new ArrayList<>();
+
+        Optional<Customer> cust = customerRepository.findById(invoice.getCustomer().getCustomerId());
+
+        Customer customer;
+        if (cust.isPresent()){
+            customer = cust.get();
+        }
+        else {
+            throw new IllegalArgumentException("Customer doesn't exist");
+        }
 
         BigInteger totalAmount = BigInteger.ZERO;
 
         for (OrderItem orderItem : listOrderItem){
+
             Product product = productService.findById(orderItem.getProduct().getProductId());
             if (!product.isActive()) {
                 throw new IllegalArgumentException("Product is not active");
@@ -255,6 +274,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             BigInteger price = product.getPrice();
             BigInteger amount = price.multiply(qty);
             orderItem.setAmount(amount);
+
             orderItem.setInvoice(invoice);
             orderItem.setProduct(product);
 
@@ -267,18 +287,23 @@ public class InvoiceServiceImpl implements InvoiceService {
 
             productRepository.save(product);
         }
-        invoice.setTotalAmount(totalAmount);
-        invoiceOrder.addAll(newOrderItems);
+
         orderItemRepository.saveAll(newOrderItems);
+
+        invoice.setListOrderItem(newOrderItems);
+        invoice.setInvoiceDate(LocalDate.now());
+        invoice.setCustomer(customer);
+        invoice.setTotalAmount(totalAmount);
+
         return invoiceRepository.save(invoice);
     }
 
-    // @Override
-    // @Transactional
-    // public BigInteger recalculateTotalAmount(List<UUID> orderItemIds) {
-    //     List<OrderItem> orderItems = orderItemService.findAllByIds(orderItemIds);
-    //     return orderItems.stream()
-    //             .map(orderItem -> orderItem.getAmount().multiply(BigInteger.valueOf(orderItem.getQuantity())))
-    //             .reduce(BigInteger.ZERO, BigInteger::add);
-    // }
+    @Override
+    @Transactional
+    public Page<Invoice> findAllByCustomerName(int pageNo, int pageSize, String sortBy, String sortOrder, String name) {
+        Sort.Direction direction = "desc".equalsIgnoreCase(sortOrder) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Sort sort = Sort.by(direction,sortBy);
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        return invoiceRepository.findAllByCustomerName(name, pageable);
+    }
 }

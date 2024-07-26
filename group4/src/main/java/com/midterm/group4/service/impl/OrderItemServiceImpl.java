@@ -28,9 +28,6 @@ public class OrderItemServiceImpl implements OrderItemService{
     @Autowired
     private ProductService productService;
 
-    @Autowired
-    private InvoiceService invoiceService;
-
     @Override
     @Transactional
     public Page<OrderItem> findAll(int pageNo, int pageSize) {

@@ -36,14 +36,13 @@ public class OrderItem {
 
     @ManyToOne
     @JoinColumn(name = "invoiceId")
+    @JsonIgnore
     private Invoice invoice;
 
     @ManyToOne
-    @JoinColumn(name = "productId", nullable = false)
+    @JoinColumn(name = "productId")
+    @JsonIgnore
     private Product product;
-
-    @Column(name = "product_id", nullable = false)
-    private UUID productId;
 
     @PrePersist
     protected void onCreate() {
