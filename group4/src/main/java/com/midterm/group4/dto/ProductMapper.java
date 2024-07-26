@@ -1,9 +1,12 @@
 package com.midterm.group4.dto;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 import org.mapstruct.Mapper;
 import com.midterm.group4.data.model.Product;
 import com.midterm.group4.dto.request.CreateProductDTO;
+import com.midterm.group4.dto.response.ReadInvoiceDTO;
 import com.midterm.group4.dto.response.ReadProductDTO;
 
 @Mapper(componentModel = "spring", uses = {OrderItemMapper.class})

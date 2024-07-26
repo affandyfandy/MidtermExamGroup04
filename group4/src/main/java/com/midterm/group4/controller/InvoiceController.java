@@ -12,17 +12,18 @@ import com.midterm.group4.dto.InvoiceMapper;
 import com.midterm.group4.dto.OrderItemMapper;
 import com.midterm.group4.dto.request.CreateInvoiceDTO;
 import com.midterm.group4.dto.response.ReadInvoiceDTO;
+import com.midterm.group4.exception.ObjectNotFoundException;
 import com.midterm.group4.service.InvoiceService;
 
-import java.util.UUID;
 import java.io.IOException;
-import java.util.List;
+
 import com.midterm.group4.service.ExcelExportService;
 
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -63,7 +64,7 @@ public class InvoiceController {
             @ApiResponse(responseCode = "200", description = "Successful retrieval of invoices")
     })
     @GetMapping
-    public ResponseEntity<List<ReadInvoiceDTO>> getAllInvoice(
+    public ResponseEntity<Page<ReadInvoiceDTO>> getAllInvoice(
         @RequestParam(defaultValue = "0", required = false) int pageNo,
         @RequestParam(defaultValue = "10", required = false) int pageSize,
         @RequestParam(defaultValue = "asc", required = false ) String sortOrder,
@@ -71,22 +72,12 @@ public class InvoiceController {
 
     ) {
         Page<Invoice> pageInvoice = invoiceService.findAllSorted(pageNo, pageSize, sortBy, sortOrder);
-        return ResponseEntity.status(HttpStatus.OK).body(invoiceMapper.toListReadInvoiceDto(pageInvoice.getContent()));
+        List<ReadInvoiceDTO> invoiceDTOs = pageInvoice.getContent().stream()
+            .map(invoice -> invoiceMapper.toReadInvoiceDto(invoice))
+            .collect(Collectors.toList());
+        Page<ReadInvoiceDTO> pageInvoiceDTO = new PageImpl<>(invoiceDTOs, pageInvoice.getPageable(), pageInvoice.getTotalElements());
+        return ResponseEntity.status(HttpStatus.OK).body(pageInvoiceDTO);
     }
-
-    // @Operation(summary = "Get all invoices", description = "Retrieve all invoices with pagination and sorting")
-    // @ApiResponses(value = {
-    //         @ApiResponse(responseCode = "200", description = "Successful retrieval of invoices")
-    // })
-    // @GetMapping
-    // public ResponseEntity<List<InvoiceDTO>> getAllInvoice(
-    //         @RequestParam(defaultValue = "0", required = false) int pageNo,
-    //         @RequestParam(defaultValue = "10", required = false) int pageSize,
-    //         @RequestParam(defaultValue = "asc", required = false) String sortOrder
-    // ) {
-    //     Page<Invoice> pageInvoice = invoiceService.findAll(pageNo, pageSize, sortOrder);
-    //     return ResponseEntity.status(HttpStatus.OK).body(invoiceMapper.toListDto(pageInvoice.getContent()));
-    // }
 
     @Operation(summary = "Filter invoices", description = "Filter invoices by date or month with pagination and sorting")
     @ApiResponses(value = {
@@ -94,7 +85,7 @@ public class InvoiceController {
             @ApiResponse(responseCode = "400", description = "Invalid request if neither date nor month is provided")
     })
     @GetMapping("/filter")
-    public ResponseEntity<List<ReadInvoiceDTO>> filterInvoice(
+    public ResponseEntity<Page<ReadInvoiceDTO>> filterInvoice(
         @RequestParam(defaultValue = "0", required = false) int pageNo,
         @RequestParam(defaultValue = "10", required = false) int pageSize,
         @RequestParam(defaultValue = "asc", required = false ) String sortOrder,
@@ -104,7 +95,11 @@ public class InvoiceController {
         @RequestParam(value = "month", required = false) String month
     ) {
         Page<Invoice> pageInvoice = invoiceService.findAllFiltered(pageNo, pageSize, sortBy, sortOrder, customerId, invoiceDate, month);
-        return ResponseEntity.status(HttpStatus.OK).body(invoiceMapper.toListReadInvoiceDto(pageInvoice.getContent()));
+        List<ReadInvoiceDTO> invoiceDTOs = pageInvoice.getContent().stream()
+            .map(invoice -> invoiceMapper.toReadInvoiceDto(invoice))
+            .collect(Collectors.toList());
+        Page<ReadInvoiceDTO> pageInvoiceDTO = new PageImpl<>(invoiceDTOs, pageInvoice.getPageable(), pageInvoice.getTotalElements());
+        return ResponseEntity.status(HttpStatus.OK).body(pageInvoiceDTO);
     }
 
     @Operation(summary = "Search invoices by customer name", description = "Search invoices by customer name with pagination and sorting")
@@ -113,20 +108,23 @@ public class InvoiceController {
             @ApiResponse(responseCode = "400", description = "Invalid request if customer name is not provided")
     })
     @GetMapping("/search")
-    public ResponseEntity<List<ReadInvoiceDTO>> getInvoiceByCustomerName(
+    public ResponseEntity<Page<ReadInvoiceDTO>> getInvoiceByCustomerName(
             @RequestParam(defaultValue = "0", required = false) int pageNo,
             @RequestParam(defaultValue = "10", required = false) int pageSize,
             @RequestParam(defaultValue = "asc", required = false) String sortOrder,
+            @RequestParam(defaultValue = "totalAmount", required = false) String sortBy,
             @RequestParam(required = true) String customerName
     ) {
-        Page<Invoice> pageInvoice;
         if (customerName != null && !customerName.isEmpty()) {
-            List<Invoice> invoices = invoiceService.findByCustomerName(customerName);
-            pageInvoice = new PageImpl<>(invoices); // Convert to Page if needed
+            Page<Invoice> pageInvoice = invoiceService.findAllByCustomerName(pageNo, pageSize, sortBy, sortOrder, customerName);
+            List<ReadInvoiceDTO> invoiceDTOs = pageInvoice.getContent().stream()
+                .map(invoice -> invoiceMapper.toReadInvoiceDto(invoice))
+                .collect(Collectors.toList());
+            Page<ReadInvoiceDTO> pageInvoiceDTO = new PageImpl<>(invoiceDTOs, pageInvoice.getPageable(), pageInvoice.getTotalElements());
+            return ResponseEntity.status(HttpStatus.OK).body(pageInvoiceDTO);
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null); // Invalid request if customer name is not provided
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
-        return ResponseEntity.status(HttpStatus.OK).body(invoiceMapper.toListReadInvoiceDto(pageInvoice.getContent()));
     }
 
     @Operation(summary = "Get invoice by ID", description = "Retrieve an invoice by its ID")
@@ -135,7 +133,7 @@ public class InvoiceController {
             @ApiResponse(responseCode = "404", description = "Invoice not found")
     })
     @GetMapping("/{id}")
-    public ResponseEntity<ReadInvoiceDTO> getInvoiceById(@PathVariable UUID id) {
+    public ResponseEntity<ReadInvoiceDTO> getInvoiceById(@PathVariable UUID id)throws ObjectNotFoundException  {
         Invoice invoice = invoiceService.findById(id);
         return ResponseEntity.status(HttpStatus.OK).body(invoiceMapper.toReadInvoiceDto(invoice));
     }
@@ -146,7 +144,7 @@ public class InvoiceController {
             @ApiResponse(responseCode = "404", description = "Invoice not found")
     })
     @PutMapping("/{id}")
-    public ResponseEntity<ReadInvoiceDTO> updateInvoice(@PathVariable UUID id, @RequestBody CreateInvoiceDTO invoiceDto) {
+    public ResponseEntity<ReadInvoiceDTO> updateInvoice(@PathVariable UUID id, @RequestBody CreateInvoiceDTO invoiceDto) throws ObjectNotFoundException {
         List<OrderItem> listOrderItem = orderItemMapper.toListEntity(invoiceDto.getListOrderItem());
         Invoice invoice = invoiceMapper.toEntity(invoiceDto);
         Invoice updatedInvoice = invoiceService.update(id, invoice, listOrderItem);
@@ -186,7 +184,7 @@ public class InvoiceController {
             @RequestParam(required = false) Integer year) {
 
         if (date == null && month == null && year == null) {
-            return ResponseEntity.badRequest().body(Map.of("error", "At least one parameter (date, month, year) is required"));
+            return ResponseEntity.badRequest().body(Map.of("Error", "At least one parameter (date, month, year) is required"));
         }
 
         BigInteger totalAmountPerDay = date != null ? invoiceService.getTotalAmountPerDay(date) : null;

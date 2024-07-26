@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.midterm.group4.data.model.Customer;
 import com.midterm.group4.data.repository.CustomerRepository;
+import com.midterm.group4.exception.InvalidInputException;
+import com.midterm.group4.exception.ObjectNotFoundException;
 import com.midterm.group4.service.CustomerService;
 
 @Service
@@ -31,14 +33,14 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     @Transactional
     public Customer findById(UUID id) {
-        Optional<Customer> optCustomer = customerRepository.findById(id);
-        if (optCustomer.isPresent()) return optCustomer.get();
-        return null;
+        return customerRepository.findById(id)
+            .orElseThrow(() -> new ObjectNotFoundException("Customer not found with ID: " + id));
     }
 
     @Override
     @Transactional
     public Customer saveCustomer(Customer customer) {
+        validatePhoneNumber(customer.getPhone());
         customer.setActive(true);
         customer.setListInvoice(new ArrayList<>());
         customer.setCreatedTime(LocalDateTime.now());
@@ -61,11 +63,24 @@ public class CustomerServiceImpl implements CustomerService {
     public Customer update(UUID id, Customer customer) {
         Customer findCustomer = findById(id);
         if (findCustomer != null){
+            validatePhoneNumber(customer.getPhone());
             findCustomer.setFirstName(customer.getFirstName());
             findCustomer.setLastName(customer.getLastName());
             findCustomer.setPhone(customer.getPhone());
             customerRepository.save(findCustomer);
         }
         return findCustomer;
+    }
+
+    private void validatePhoneNumber(String phone) {
+        if (phone == null || phone.trim().isEmpty()) {
+            throw new InvalidInputException("Phone number cannot be null or empty.");
+        }
+
+        // Regex for phone number validation (adjust as needed)
+        String phoneNumberRegex = "^\\+?[0-9]{10,15}$";
+        if (!phone.matches(phoneNumberRegex)) {
+            throw new InvalidInputException("Invalid phone number format.");
+        }
     }
 }
