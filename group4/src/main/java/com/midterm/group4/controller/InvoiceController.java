@@ -163,6 +163,10 @@ public class InvoiceController {
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(invoiceMapper.toReadInvoiceDto(newInvoice));
     }
 
+    @Operation(summary = "Download invoice", description = "Generate invoice detail to pdf")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Invoice downloaded successfully")
+    })
     @GetMapping("/{id}/export")
     public ResponseEntity<?> download(@PathVariable UUID id) throws IOException {
         byte[] pdfBytes = invoiceService.generateToPdf(id);

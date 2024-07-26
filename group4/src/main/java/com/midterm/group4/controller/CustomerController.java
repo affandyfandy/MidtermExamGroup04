@@ -4,8 +4,6 @@ import com.midterm.group4.data.model.Customer;
 import com.midterm.group4.dto.CustomerMapper;
 import com.midterm.group4.dto.request.CreateCustomerDTO;
 import com.midterm.group4.dto.response.ReadCustomerDTO;
-import com.midterm.group4.dto.response.ReadProductDTO;
-import com.midterm.group4.exception.InvalidInputException;
 import com.midterm.group4.exception.ObjectNotFoundException;
 import com.midterm.group4.service.CustomerService;
 import io.swagger.v3.oas.annotations.Operation;
