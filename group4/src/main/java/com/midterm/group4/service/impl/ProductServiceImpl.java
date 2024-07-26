@@ -83,15 +83,17 @@ public class ProductServiceImpl implements ProductService{
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
 
         int intStatus = 0;
+        boolean stat = false;
         if (status != null && "active".equalsIgnoreCase(status)) {
             intStatus = 1;
-        }
+            stat = true;
+        };
         if (name != null && !name.isEmpty() && (status == null || status.isEmpty())) {
             return productRepository.findAllByName(name, pageable);
         } else if (status != null && !status.isEmpty() && (name == null || name.isEmpty())) {
             return productRepository.findAllByStatus(intStatus, pageable);
         } else if (name != null && !name.isEmpty() && status != null && !status.isEmpty()) {
-            return productRepository.findAllByNameAndStatus(name, intStatus, pageable);
+            return productRepository.findAllByNameAndStatus(name, stat, pageable);
         } else {
             return productRepository.findAll(pageable);
         }

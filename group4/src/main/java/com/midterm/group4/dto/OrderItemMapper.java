@@ -14,7 +14,7 @@ public interface OrderItemMapper {
     // @Mapping(target = "invoice.invoiceId", source = "invoiceId")
     // @Mapping(target = "orderItemId", ignore = true)
     // OrderItem toEntity(OrderItemDTO orderItemDTO);
-    
+
     // @Mapping(target = "productId", source = "product.productId")
     // @Mapping(target = "invoiceId", source = "invoice.invoiceId")
     // OrderItemDTO toDto(OrderItem orderItem);

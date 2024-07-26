@@ -3,7 +3,6 @@ package com.midterm.group4.service;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
-// import org.springframework.web.multipart.MultipartFile;
 import com.midterm.group4.data.model.Product;
 
 public interface ProductService {

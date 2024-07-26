@@ -79,3 +79,32 @@
 
     
 // }
+//     @Override
+//     @Transactional
+//     public OrderItem createOrderItem(OrderItem orderItem) {
+//         Product product = productService.findById(orderItem.getProduct().getProductId());
+//         orderItem.setProduct(product);
+//         BigInteger qty = BigInteger.valueOf(orderItem.getQuantity());
+//         BigInteger price = orderItem.getProduct().getPrice();
+//         BigInteger amount = price.multiply(qty);
+//         orderItem.setAmount(amount);
+//         orderItem.setCreatedTime(LocalDateTime.now());
+//         orderItem.setUpdatedTime(LocalDateTime.now());
+//         return orderItemRepository.save(orderItem);
+//     }
+
+//     @Override
+//     @Transactional
+//     public OrderItem updateOrderItem(UUID id, OrderItem orderItem) {
+//         OrderItem findOrderItem = findOrderItemById(id);
+//         if (findOrderItem != null){
+//             findOrderItem.setAmount(orderItem.getAmount());
+//             findOrderItem.setUpdatedTime(orderItem.getUpdatedTime());
+//             findOrderItem.setQuantity(orderItem.getQuantity());
+//             findOrderItem.setInvoice(orderItem.getInvoice());
+//             orderItemRepository.save(findOrderItem);
+//         }
+//         return null;
+//     }
+// }
+// >>>>>>> 9a11b7a9284ca1a9d9f08cc49ec00b001425cf48

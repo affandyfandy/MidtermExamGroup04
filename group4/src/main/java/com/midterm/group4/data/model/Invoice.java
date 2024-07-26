@@ -58,7 +58,4 @@ public class Invoice {
     protected void onUpdate() {
         updatedTime = LocalDateTime.now();
     }
-
-    public void setOrderItemId(List<UUID> orderItemId) {
-    }
 }
