@@ -24,10 +24,4 @@ public interface OrderItemMapper {
     @Mapping(target = "invoiceId", source = "invoice.invoiceId")
     OrderItemDTO toDto(OrderItem orderItem);
     List<OrderItemDTO> toListDto(List<OrderItem> orderItems);
-    // default Page<OrderItemDTO> toDto(Page<OrderItem> pageOrderItem) {
-    //     List<OrderItemDTO> orderItemDTOs = pageOrderItem.stream()
-    //             .map(this::toDto)
-    //             .collect(Collectors.toList());
-    //     return new PageImpl<>(orderItemDTOs, pageOrderItem.getPageable(), pageOrderItem.getTotalElements());
-    // }
 }

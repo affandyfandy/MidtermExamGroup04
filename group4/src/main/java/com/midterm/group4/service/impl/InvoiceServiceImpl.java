@@ -108,13 +108,6 @@ public class InvoiceServiceImpl implements InvoiceService {
         return findInvoice;
     }
 
-    // @Override
-    // @Transactional
-    // public void updateOrder(Invoice invoice, OrderItem orderItem){
-    //     List<OrderItem> listOrderItem = invoice.getListOrderItem();
-
-    // }
-
     @Transactional
     public Invoice createInvoice(InvoiceDTO invoiceDto) {
         Customer customer = customerService.findById(invoiceDto.getCustomerId());

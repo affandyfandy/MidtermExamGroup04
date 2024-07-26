@@ -18,7 +18,6 @@ public class ExcelExportService {
         try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             Sheet sheet = workbook.createSheet("Invoices");
 
-            // Create header row
             Row headerRow = sheet.createRow(0);
             String[] headers = {"Invoice ID", "Customer ID", "Customer Name", "Amount", "Product ID", "Product Name", "Product Price", "Product Quantity", "Product Amount"};
             for (int i = 0; i < headers.length; i++) {

@@ -42,12 +42,12 @@ public class Invoice {
     @OneToMany(mappedBy = "invoice", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<OrderItem> listOrderItem;
 
-    // @PrePersist
-    // protected void onCreate() {
-    //     if (invoiceId == null) {
-    //         invoiceId = UUID.randomUUID();
-    //     }
-    // }
+     @PrePersist
+     protected void onCreate() {
+         if (invoiceId == null) {
+             invoiceId = UUID.randomUUID();
+         }
+     }
 
     @PreUpdate
     protected void onUpdate() {

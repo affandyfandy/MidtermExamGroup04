@@ -24,25 +24,6 @@ public class CustomerServiceImpl implements CustomerService {
     private CustomerRepository customerRepository;
 
 
-    // public Page<CustomerDTO> getAllCustomers(int page, int size) {
-    //     Pageable pageable = PageRequest.of(page, size);
-    //     Page<Customer> customers = customerRepository.findAll(pageable);
-    //     return customers.map(this::convertToDTO);
-    // }
-
-    // public Optional<CustomerDTO> getCustomerById(UUID id) {
-    //     return customerRepository.findById(id).map(this::convertToDTO);
-    // }
-
-    // public CustomerDTO saveCustomer(CustomerDTO customerDTO) {
-    //     Customer customer = convertToEntity(customerDTO);
-    //     return convertToDTO(customerRepository.save(customer));
-    // }
-
-    // public void deleteCustomer(UUID id) {
-    //     customerRepository.deleteById(id);
-    // }
-
     @Override
     @Transactional
     public Page<Customer> findAll(int pageNo, int pageSize) {

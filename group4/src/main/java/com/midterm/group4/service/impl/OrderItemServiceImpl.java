@@ -49,9 +49,7 @@ public class OrderItemServiceImpl implements OrderItemService{
     @Transactional
     public OrderItem createOrderItem(OrderItem orderItem) {
         Product product = productService.findById(orderItem.getProduct().getProductId());
-        // Invoice invoice = invoiceService.findById(orderItem.getInvoice().getInvoiceId());
         orderItem.setProduct(product);
-        // orderItem.setInvoice(invoice);
         BigInteger qty = BigInteger.valueOf(orderItem.getQuantity());
         BigInteger price = orderItem.getProduct().getPrice();
         BigInteger amount = price.multiply(qty);
@@ -74,63 +72,4 @@ public class OrderItemServiceImpl implements OrderItemService{
         }
         return null;
     }
-
-    // public Page<OrderItem> getAllOrderItems(Pageable pageable) {
-    //     return orderItemRepository.findAll(pageable);
-    // }
-
-    // public Optional<OrderItem> getOrderItemById(UUID id) {
-    //     return orderItemRepository.findById(id);
-    // }
-
-    // public OrderItem createOrderItem(OrderItemDTO orderItemDTO) {
-    //     OrderItem orderItem = new OrderItem();
-    //     Optional<Product> productOptional = productRepository.findById(orderItemDTO.getProductId());
-    //     Optional<Invoice> invoiceOptional = invoiceRepository.findById(orderItemDTO.getInvoiceId());
-
-    //     if (productOptional.isPresent() && invoiceOptional.isPresent()) {
-    //         Product product = productOptional.get();
-    //         Invoice invoice = invoiceOptional.get();
-
-    //         orderItem.setProduct(product);
-    //         orderItem.setInvoice(invoice);
-    //         orderItem.setQuantity(orderItemDTO.getQuantity());
-    //         orderItem.setAmount(orderItemDTO.getAmount());
-    //         orderItem.setCreatedTime(LocalDateTime.now());
-
-    //         return orderItemRepository.save(orderItem);
-    //     } else {
-    //         throw new IllegalArgumentException("Invalid product ID or invoice ID");
-    //     }
-    // }
-
-    // public OrderItem updateOrderItem(UUID id, OrderItemDTO orderItemDTO) {
-    //     Optional<OrderItem> orderItemOptional = orderItemRepository.findById(id);
-    //     if (orderItemOptional.isPresent()) {
-    //         OrderItem orderItem = orderItemOptional.get();
-    //         Optional<Product> productOptional = productRepository.findById(orderItemDTO.getProductId());
-    //         Optional<Invoice> invoiceOptional = invoiceRepository.findById(orderItemDTO.getInvoiceId());
-
-    //         if (productOptional.isPresent() && invoiceOptional.isPresent()) {
-    //             Product product = productOptional.get();
-    //             Invoice invoice = invoiceOptional.get();
-
-    //             orderItem.setProduct(product);
-    //             orderItem.setInvoice(invoice);
-    //             orderItem.setQuantity(orderItemDTO.getQuantity());
-    //             orderItem.setAmount(orderItemDTO.getAmount());
-    //             orderItem.setUpdatedTime(LocalDateTime.now());
-
-    //             return orderItemRepository.save(orderItem);
-    //         } else {
-    //             throw new IllegalArgumentException("Invalid product ID or invoice ID");
-    //         }
-    //     } else {
-    //         throw new IllegalArgumentException("Invalid order item ID");
-    //     }
-    // }
-
-    // public void deleteOrderItem(UUID id) {
-    //     orderItemRepository.deleteById(id);
-    // }
 }

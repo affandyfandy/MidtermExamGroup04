@@ -105,36 +105,4 @@ public class ProductServiceImpl implements ProductService{
         return productRepository.saveAll(products);
     }
 
-
-    // @Override
-    // @Transactional
-    // public Page<Product> findAllByName(int pageNo, int pageSize, String sortBy, String sortOrder, String name) {
-    //     Sort.Direction direction = "desc".equalsIgnoreCase(sortOrder) ? Sort.Direction.DESC : Sort.Direction.ASC;
-    //     Sort sort = Sort.by(direction,sortBy);
-    //     Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
-    //     return productRepository.findAllByName(name, pageable);
-    // }
-
-    // @Override
-    // @Transactional
-    // public Page<Product> findAllByStatus(int pageNo, int pageSize, String sortBy, String sortOrder, boolean status) {
-    //     Sort.Direction direction = "desc".equalsIgnoreCase(sortOrder) ? Sort.Direction.DESC : Sort.Direction.ASC;
-    //     Sort sort = Sort.by(direction,sortBy);
-    //     Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
-    //     int statusInt = status ? 1 : 0;
-    //     return productRepository.findAllByStatus(statusInt, pageable);
-    // }
-
-    // @Override
-    // @Transactional
-    // public List<Product> findAllByName(String name, String sortBy, String sortOrder) {
-    //     return productRepository.findAllByName(name, sortBy, sortOrder);
-    // }
-
-    // @Override
-    // @Transactional
-    // public List<Product> findAllByStatus(boolean status, String sortBy, String sortOrder) {
-    //     return productRepository.findAllByStatus(status, sortBy, sortOrder);
-    // }
-
 }

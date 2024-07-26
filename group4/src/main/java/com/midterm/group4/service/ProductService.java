@@ -15,10 +15,5 @@ public interface ProductService {
     Product update(UUID id, Product product);
     void updateStatus(UUID id, boolean status);
     Page<Product> findAllByQuery(int pageNo, int pageSize, String sortBy, String sortOrder, String name, String status);
-    // Page<Product> findAllByName(int pageNo, int pageSize, String sortBy, String sortOrder, String name);
-    // Page<Product> findAllByStatus(int pageNo, int pageSize, String sortBy, String sortOrder, boolean status);
-    // List<Product> exportToExcel(MultipartFile file);
-    // List<Product> findAllByName(String name, String sortBy, String sortOrder);
-    // List<Product> findAllByStatus(boolean status, String sortBy, String sortOrder);
 
 }
