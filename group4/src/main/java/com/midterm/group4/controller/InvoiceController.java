@@ -39,8 +39,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/api/v1/invoice")
+@Tag(name = "Invoice Management", description = "APIs for managing invoices")
 public class InvoiceController {
 
     @Autowired
@@ -58,33 +64,46 @@ public class InvoiceController {
     @Autowired
     private ExcelExportService excelExportService;
 
+    @Operation(summary = "Get all invoices with sorting", description = "Retrieve all invoices with sorting and pagination")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful retrieval of invoices")
+    })
     @GetMapping("/sort")
     public ResponseEntity<List<InvoiceDTO>> getAllInvoiceSort(
-        @RequestParam(defaultValue = "0", required = false) int pageNo,
-        @RequestParam(defaultValue = "10", required = false) int pageSize,
-        @RequestParam(defaultValue = "asc", required = false ) String sortOrder,
-        @RequestParam(required = true) String sortBy
+            @RequestParam(defaultValue = "0", required = false) int pageNo,
+            @RequestParam(defaultValue = "10", required = false) int pageSize,
+            @RequestParam(defaultValue = "asc", required = false) String sortOrder,
+            @RequestParam(required = true) String sortBy
     ) {
         Page<Invoice> pageInvoice = invoiceService.findAllSorted(pageNo, pageSize, sortBy, sortOrder);
         return ResponseEntity.status(HttpStatus.OK).body(invoiceMapper.toListDto(pageInvoice.getContent()));
     }
 
+    @Operation(summary = "Get all invoices", description = "Retrieve all invoices with pagination and sorting")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful retrieval of invoices")
+    })
     @GetMapping
     public ResponseEntity<List<InvoiceDTO>> getAllInvoice(
             @RequestParam(defaultValue = "0", required = false) int pageNo,
             @RequestParam(defaultValue = "10", required = false) int pageSize,
-            @RequestParam(defaultValue = "asc", required = false ) String sortOrder
+            @RequestParam(defaultValue = "asc", required = false) String sortOrder
     ) {
         Page<Invoice> pageInvoice = invoiceService.findAll(pageNo, pageSize, sortOrder);
         return ResponseEntity.status(HttpStatus.OK).body(invoiceMapper.toListDto(pageInvoice.getContent()));
     }
 
+    @Operation(summary = "Filter invoices", description = "Filter invoices by date or month with pagination and sorting")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful retrieval of invoices"),
+            @ApiResponse(responseCode = "400", description = "Invalid request if neither date nor month is provided")
+    })
     @GetMapping("/filter")
     public ResponseEntity<List<InvoiceDTO>> getInvoiceByFilter(
             @RequestParam(defaultValue = "0", required = false) int pageNo,
             @RequestParam(defaultValue = "10", required = false) int pageSize,
-            @RequestParam(defaultValue = "asc", required = false ) String sortOrder,
-            @RequestParam(required = false) LocalDate invoiceDate,
+            @RequestParam(defaultValue = "asc", required = false) String sortOrder,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate invoiceDate,
             @RequestParam(required = false) Integer month
     ) {
         Page<Invoice> pageInvoice;
@@ -98,11 +117,16 @@ public class InvoiceController {
         return ResponseEntity.status(HttpStatus.OK).body(invoiceMapper.toListDto(pageInvoice.getContent()));
     }
 
+    @Operation(summary = "Search invoices by customer name", description = "Search invoices by customer name with pagination and sorting")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful retrieval of invoices"),
+            @ApiResponse(responseCode = "400", description = "Invalid request if customer name is not provided")
+    })
     @GetMapping("/search")
     public ResponseEntity<List<InvoiceDTO>> getInvoiceByCustomerName(
             @RequestParam(defaultValue = "0", required = false) int pageNo,
             @RequestParam(defaultValue = "10", required = false) int pageSize,
-            @RequestParam(defaultValue = "asc", required = false ) String sortOrder,
+            @RequestParam(defaultValue = "asc", required = false) String sortOrder,
             @RequestParam(required = true) String customerName
     ) {
         Page<Invoice> pageInvoice;
@@ -110,17 +134,27 @@ public class InvoiceController {
             List<Invoice> invoices = invoiceService.findByCustomerName(customerName);
             pageInvoice = new PageImpl<>(invoices); // Convert to Page if needed
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null); // Invalid request if neither is provided
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null); // Invalid request if customer name is not provided
         }
         return ResponseEntity.status(HttpStatus.OK).body(invoiceMapper.toListDto(pageInvoice.getContent()));
     }
 
+    @Operation(summary = "Get invoice by ID", description = "Retrieve an invoice by its ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful retrieval of the invoice"),
+            @ApiResponse(responseCode = "404", description = "Invoice not found")
+    })
     @GetMapping("/{id}")
     public ResponseEntity<InvoiceDTO> getInvoiceById(@PathVariable UUID id) {
         Invoice invoice = invoiceService.findById(id);
         return ResponseEntity.status(HttpStatus.OK).body(invoiceMapper.toDto(invoice));
     }
 
+    @Operation(summary = "Update invoice", description = "Update an existing invoice by its ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "202", description = "Invoice updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Invoice not found")
+    })
     @PutMapping("/{id}")
     public ResponseEntity<InvoiceDTO> updateInvoice(@PathVariable UUID id, @RequestBody InvoiceDTO invoiceDto) {
         Invoice invoice = invoiceMapper.toEntity(invoiceDto);
@@ -128,16 +162,22 @@ public class InvoiceController {
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(invoiceMapper.toDto(updatedInvoice));
     }
 
+    @Operation(summary = "Create new invoice", description = "Create a new invoice")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "202", description = "Invoice created successfully")
+    })
     @PostMapping
     public ResponseEntity<InvoiceDTO> addNewInvoice(@RequestBody InvoiceDTO invoiceDto) {
         Invoice invoice = invoiceMapper.toEntity(invoiceDto);
-        // invoice.setInvoiceDate(null);
-        // invoice.setCreatedTime(null);
-        // invoice.setUpdatedTime(null);
         Invoice newInvoice = invoiceService.save(invoice);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(invoiceMapper.toDto(newInvoice));
     }
 
+    @Operation(summary = "Get report", description = "Get a report of invoices by date, month, or year")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful retrieval of report"),
+            @ApiResponse(responseCode = "400", description = "Invalid request if no parameters are provided")
+    })
     @GetMapping("/report")
     public ResponseEntity<Map<String, Object>> getReport(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
@@ -175,6 +215,10 @@ public class InvoiceController {
         return ResponseEntity.ok(report);
     }
 
+    @Operation(summary = "Export invoices to Excel", description = "Export list of invoices to excel by given filter: customer, month, year")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful export of invoices")
+    })
     @GetMapping("/export")
     public ResponseEntity<ByteArrayResource> exportInvoicesToExcel(
             @RequestParam(required = false) UUID customerId,
