@@ -32,5 +32,4 @@ public interface InvoiceService {
     Map<String, BigInteger> getTotalAmountPerProduct();
 
     List<Invoice> getInvoicesByFilter(UUID customerId, Integer month, Integer year);
-    // byte[] generateToPdf(UUID id);
 }
