@@ -11,7 +11,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.midterm.group4.data.model.Product;
-import com.midterm.group4.dto.request.CreateProductDTO;
 
 public class FileUtils {
 

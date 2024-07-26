@@ -12,7 +12,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.midterm.group4.data.model.OrderItem;
-import com.midterm.group4.service.OrderItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -29,7 +28,6 @@ import com.midterm.group4.data.repository.CustomerRepository;
 import com.midterm.group4.data.repository.InvoiceRepository;
 import com.midterm.group4.data.repository.OrderItemRepository;
 import com.midterm.group4.data.repository.ProductRepository;
-import com.midterm.group4.service.CustomerService;
 import com.midterm.group4.service.InvoiceService;
 import com.midterm.group4.service.ProductService;
 import com.midterm.group4.utils.DocumentUtils;
@@ -197,11 +195,6 @@ public class InvoiceServiceImpl implements InvoiceService {
         }
         return null;
     }
-
-    // private String findSortBy(String sortBy){
-    //     if (sortBy.equals("invoiceDate")) return "invoice_date";
-    //     return "total_amount";
-    // }
 
     @Override
     @Transactional

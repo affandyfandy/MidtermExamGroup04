@@ -11,13 +11,6 @@ import com.midterm.group4.dto.response.ReadOrderItemDTO;
 
 @Mapper(componentModel = "spring", uses = {CustomerMapper.class, ProductMapper.class})
 public interface InvoiceMapper {
-    // @Mapping(target = "customerId", source = "customer.customerId" )
-    // InvoiceDTO toDto(Invoice invoice);
-
-    // List<InvoiceDTO> toListDto(List<Invoice> listInvoices);
-
-    // @Mapping(target = "customer.customerId", source = "customerId" )
-    // Invoice toEntity(InvoiceDTO invoiceDto);
 
     ReadInvoiceOrderDTO toReadInvoiceOrderDto(Invoice invoice);
 

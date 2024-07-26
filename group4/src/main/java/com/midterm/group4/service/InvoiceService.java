@@ -2,10 +2,7 @@ package com.midterm.group4.service;
 
 import com.midterm.group4.data.model.Invoice;
 import com.midterm.group4.data.model.OrderItem;
-import com.midterm.group4.data.model.Product;
-
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.UUID;
 import java.util.List;
 import org.springframework.data.domain.Page;
