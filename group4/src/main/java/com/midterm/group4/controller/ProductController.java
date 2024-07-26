@@ -133,9 +133,9 @@ public class ProductController {
             @ApiResponse(responseCode = "202", description = "Successfully imported products")
     })
     @PostMapping("/import")
-    public ResponseEntity<List<ReadProductDTO>> importProduct(@Parameter(description = "Excel file") @RequestParam("file") MultipartFile file) throws IOException {
+    public ResponseEntity<String> importProduct(@Parameter(description = "Excel file") @RequestParam("file") MultipartFile file) throws IOException {
         List<Product> listProduct = FileUtils.readEmployeeFromExcel(file);
-        List<Product> savedListProduct = productService.saveAll(listProduct);
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(productMapper.toListReadProductDto(savedListProduct));
+        productService.saveAll(listProduct);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body("Products successfully imported");
     }
 }

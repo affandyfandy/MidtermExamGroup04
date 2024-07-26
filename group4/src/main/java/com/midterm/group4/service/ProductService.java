@@ -10,7 +10,7 @@ public interface ProductService {
     Page<Product> findAllSorted(int pageNo, int pageSize, String sortBy, String sortOrder);
     Product findById(UUID id);
     Product save(Product product);
-    List<Product> saveAll(List<Product> products);
+    void saveAll(List<Product> products);
     Product update(UUID id, Product product);
     void updateStatus(UUID id, boolean status);
     Page<Product> findAllByQuery(int pageNo, int pageSize, String sortBy, String sortOrder, String name, String status);

@@ -101,8 +101,9 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     @Transactional
-    public List<Product> saveAll(List<Product> products) {
-        return productRepository.saveAll(products);
+    public void saveAll(List<Product> products) {
+        List<Product> saved = productRepository.saveAll(products);
+        return;
     }
 
 }
