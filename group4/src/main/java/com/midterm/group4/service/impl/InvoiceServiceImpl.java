@@ -49,6 +49,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Autowired
     private OrderItemRepository orderItemRepository;
 
+    @Autowired
     private DocumentUtils documentUtils;
 
     @Autowired
