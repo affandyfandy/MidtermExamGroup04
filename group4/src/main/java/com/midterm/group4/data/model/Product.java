@@ -58,9 +58,9 @@ public class Product{
 
     @PrePersist
     protected void onCreate() {
-        if (productId == null) {
-            productId = UUID.randomUUID();
-        }
+        // if (productId == null) {
+        //     productId = UUID.randomUUID();
+        // }
         createdTime = LocalDateTime.now();
         updatedTime = LocalDateTime.now();
     }

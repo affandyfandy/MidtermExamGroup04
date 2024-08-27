@@ -17,7 +17,6 @@ import com.midterm.group4.service.InvoiceService;
 
 import java.io.IOException;
 
-import com.midterm.group4.service.ExcelExportService;
 
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
@@ -28,6 +27,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -55,9 +55,6 @@ public class InvoiceController {
 
     @Autowired
     private OrderItemMapper orderItemMapper;
-
-    @Autowired
-    private ExcelExportService excelExportService;
 
     @Operation(summary = "Get all invoices with sorting", description = "Retrieve all invoices with sorting and pagination")
     @ApiResponses(value = {
@@ -184,38 +181,10 @@ public class InvoiceController {
     @GetMapping("/report")
     public ResponseEntity<Map<String, Object>> getReport(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-            @RequestParam(required = false) Integer month,
-            @RequestParam(required = false) Integer year) {
-
-        if (date == null && month == null && year == null) {
-            return ResponseEntity.badRequest().body(Map.of("Error", "At least one parameter (date, month, year) is required"));
-        }
-
-        BigInteger totalAmountPerDay = date != null ? invoiceService.getTotalAmountPerDay(date) : null;
-        BigInteger totalAmountPerMonth = (month != null && year != null) ? invoiceService.getTotalAmountPerMonth(month, year) : null;
-        BigInteger totalAmountPerYear = year != null ? invoiceService.getTotalAmountPerYear(year) : null;
-
-        List<Map<String, Object>> topProductsByAmount = invoiceService.getTop3ProductsByAmount();
-        List<String> soldProducts = invoiceService.getSoldProducts();
-        Map<String, Long> totalQuantityPerProduct = invoiceService.getTotalQuantityPerProduct();
-        Map<String, BigInteger> totalAmountPerProduct = invoiceService.getTotalAmountPerProduct();
-
-        Map<String, Object> report = new LinkedHashMap<>();
-        if (date != null) {
-            report.put("Revenue generated this day", totalAmountPerDay);
-        }
-        if (month != null) {
-            report.put("Revenue generated this month", totalAmountPerMonth);
-        }
-        if (year != null && month == null) {
-            report.put("Revenue generated this year", totalAmountPerYear);
-        }
-        report.put("Top 3 Products By Amount", topProductsByAmount);
-        report.put("Product Quantity Sold", totalQuantityPerProduct);
-        report.put("Revenue Per Product", totalAmountPerProduct);
-        report.put("Sold Products", soldProducts);
-
-        return ResponseEntity.ok(report);
+            @RequestParam(defaultValue = "0", required = false) int month,
+            @RequestParam(defaultValue = "0", required = false) int year) {
+        Map<String, Object> report = invoiceService.generateReport(date, month, year);
+        return ResponseEntity.status(HttpStatus.OK).body(report);
     }
 
     @Operation(summary = "Export invoices to Excel", description = "Export list of invoices to excel by given filter: customer, month, year")
@@ -228,8 +197,8 @@ public class InvoiceController {
             @RequestParam(required = false) Integer month,
             @RequestParam(required = false) Integer year) throws IOException {
 
-        List<Invoice> invoices = invoiceService.getInvoicesByFilter(customerId, month, year);
-        ByteArrayOutputStream outputStream = excelExportService.exportInvoice(invoices);
+        List<Invoice> invoices = invoiceService.generateInvoiceReportData(customerId, month, year);
+        ByteArrayOutputStream outputStream = invoiceService.exportInvoiceToExcel(invoices);
 
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=invoices.xlsx");

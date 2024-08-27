@@ -46,9 +46,9 @@ public class OrderItem {
 
     @PrePersist
     protected void onCreate() {
-        if (orderItemId == null) {
-            orderItemId = UUID.randomUUID();
-        }
+        // if (orderItemId == null) {
+        //     orderItemId = UUID.randomUUID();
+        // }
         createdTime = LocalDateTime.now();
         updatedTime = LocalDateTime.now();
     }

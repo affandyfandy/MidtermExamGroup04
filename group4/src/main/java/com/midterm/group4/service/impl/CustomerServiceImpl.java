@@ -47,31 +47,8 @@ public class CustomerServiceImpl implements CustomerService {
         return customerRepository.save(customer);
     }
 
-    @Override
-    @Transactional
-    public void updateStatus(UUID id, boolean status) {
-        Customer findCustomer = findById(id);
-        if (findCustomer != null) {
-            findCustomer.setActive(status);
-            findCustomer.setUpdatedTime(LocalDateTime.now());
-        }
-    }
 
-    @Override
-    @Transactional
-    public Customer update(UUID id, Customer customer) {
-        Customer findCustomer = findById(id);
-        if (findCustomer != null){
-            validatePhoneNumber(customer.getPhone());
-            findCustomer.setFirstName(customer.getFirstName());
-            findCustomer.setLastName(customer.getLastName());
-            findCustomer.setPhone(customer.getPhone());
-            customerRepository.save(findCustomer);
-        }
-        return findCustomer;
-    }
-
-    private void validatePhoneNumber(String phone) {
+    public void validatePhoneNumber(String phone) {
         if (phone == null || phone.trim().isEmpty()) {
             throw new InvalidInputException("Phone number cannot be null or empty.");
         }
@@ -81,5 +58,33 @@ public class CustomerServiceImpl implements CustomerService {
         if (!phone.matches(phoneNumberRegex)) {
             throw new InvalidInputException("Invalid phone number format.");
         }
+    }
+
+    @Override
+    @Transactional
+    public Customer updateStatusNew(UUID id, boolean status) {
+        Customer findCustomer = findById(id);
+        if (findCustomer != null) {
+            findCustomer.setActive(status);
+            findCustomer.setUpdatedTime(LocalDateTime.now());
+            customerRepository.save(findCustomer);
+            return findCustomer;
+        }
+        else throw new ObjectNotFoundException("Customer not found with ID: " + id);
+    }
+
+    @Override
+    @Transactional
+    public Customer updateNew(UUID id, Customer customer) {
+        Customer findCustomer = findById(id);
+        if (findCustomer != null){
+            validatePhoneNumber(customer.getPhone());
+            findCustomer.setFirstName(customer.getFirstName());
+            findCustomer.setLastName(customer.getLastName());
+            findCustomer.setPhone(customer.getPhone());
+            customerRepository.save(findCustomer);
+            return findCustomer;
+        }
+        else throw new ObjectNotFoundException("Customer not found with ID: " + id);
     }
 }

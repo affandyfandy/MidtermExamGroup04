@@ -15,9 +15,10 @@ public interface ProductRepository extends JpaRepository<Product, UUID>{
     @Query(value = "SELECT p FROM Product p WHERE p.name LIKE %:name%")
     Page<Product> findAllByName(@Param("name") String name, Pageable pageable);
 
-    @Query(value = "SELECT * FROM product WHERE is_active = :status", nativeQuery = true)
-    Page<Product> findAllByStatus(@Param("status") int status, Pageable pageable);
+    @Query(value = "SELECT p FROM Product p WHERE p.isActive = :status")
+    Page<Product> findAllByStatus(@Param("status") boolean status, Pageable pageable);
 
     @Query("SELECT p FROM Product p WHERE p.name LIKE %:name% AND p.isActive = :status")
-    Page<Product> findAllByNameAndStatus(@Param("name") String name, @Param("status") boolean status, Pageable pageable);    
+    Page<Product> findAllByNameAndStatus(@Param("name") String name, @Param("status") boolean status, Pageable pageable);
+    
 }

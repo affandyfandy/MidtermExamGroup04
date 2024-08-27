@@ -56,9 +56,9 @@ public class Customer {
 
     @PrePersist
     protected void onCreate() {
-        if (customerId == null) {
-            customerId = UUID.randomUUID();
-        }
+        // if (customerId == null) {
+        //     customerId = UUID.randomUUID();
+        // }
         createdTime = LocalDateTime.now();
         updatedTime = LocalDateTime.now();
     }

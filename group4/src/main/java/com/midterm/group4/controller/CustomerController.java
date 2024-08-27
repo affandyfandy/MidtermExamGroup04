@@ -67,8 +67,7 @@ public class CustomerController {
         @ApiResponse(responseCode = "404", description = "Customer not found")
     })
     public ResponseEntity<ReadCustomerDTO> customerActivation(@PathVariable UUID id) throws ObjectNotFoundException {
-        customerService.updateStatus(id, true);
-        Customer customer = customerService.findById(id);
+        Customer customer = customerService.updateStatusNew(id, true);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(customerMapper.toReadDto(customer));
     }
 
@@ -79,8 +78,7 @@ public class CustomerController {
             @ApiResponse(responseCode = "404", description = "Customer not found")
     })
     public ResponseEntity<ReadCustomerDTO> customerDeactivation(@PathVariable UUID id) throws ObjectNotFoundException {
-        customerService.updateStatus(id, false);
-        Customer customer = customerService.findById(id);
+        Customer customer = customerService.updateStatusNew(id, false);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(customerMapper.toReadDto(customer));
     }
 
@@ -105,7 +103,7 @@ public class CustomerController {
     })
     public ResponseEntity<ReadCustomerDTO> updateCustomer(@PathVariable UUID id, @RequestBody CreateCustomerDTO dto) throws ObjectNotFoundException {
         Customer customer = customerMapper.toEntity(dto);
-        Customer updatedCustomer = customerService.update(id, customer);
+        Customer updatedCustomer = customerService.updateNew(id, customer);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(customerMapper.toReadDto(updatedCustomer));
     }
 }

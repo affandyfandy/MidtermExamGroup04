@@ -15,7 +15,7 @@ import com.midterm.group4.exception.InvalidFileContentException;
 
 public class FileUtils {
 
-    public static List<Product> readEmployeeFromExcel(MultipartFile file) throws IOException {
+    public static List<Product> readProductFromExcel(MultipartFile file) throws IOException {
         List<Product> listProduct = new ArrayList<>();
         try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
     

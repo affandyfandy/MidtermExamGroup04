@@ -65,32 +65,32 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     @Transactional
-    public void updateStatus(UUID id, boolean status) {
+    public Product updateStatus(UUID id, boolean status) {
         Product findProduct = findById(id);
         if (findProduct != null){
             findProduct.setActive(status);
             findProduct.setUpdatedTime(LocalDateTime.now());
-            productRepository.save(findProduct);
+            return productRepository.save(findProduct);
         }
+        else throw new ObjectNotFoundException("Product not found with ID: " + id);
     }
 
     @Override
     @Transactional
     public Page<Product> findAllByQuery(int pageNo, int pageSize, String sortOrder, String sortBy, String name, String status) {
         Sort.Direction direction = "desc".equalsIgnoreCase(sortOrder) ? Sort.Direction.DESC : Sort.Direction.ASC;
-        Sort sort = Sort.by(direction, sortBy != null ? sortBy : "name");
+        Sort sort = Sort.by(direction,sortBy);
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
-
-        int intStatus = 0;
+    
         boolean stat = false;
         if (status != null && "active".equalsIgnoreCase(status)) {
-            intStatus = 1;
             stat = true;
-        };
+        }
+
         if (name != null && !name.isEmpty() && (status == null || status.isEmpty())) {
             return productRepository.findAllByName(name, pageable);
         } else if (status != null && !status.isEmpty() && (name == null || name.isEmpty())) {
-            return productRepository.findAllByStatus(intStatus, pageable);
+            return productRepository.findAllByStatus(stat, pageable);
         } else if (name != null && !name.isEmpty() && status != null && !status.isEmpty()) {
             return productRepository.findAllByNameAndStatus(name, stat, pageable);
         } else {

@@ -17,6 +17,7 @@ import com.midterm.group4.data.model.Product;
 import com.midterm.group4.dto.ProductMapper;
 import com.midterm.group4.dto.request.CreateProductDTO;
 import com.midterm.group4.dto.response.ReadProductDTO;
+import com.midterm.group4.exception.ErrorResponse;
 import com.midterm.group4.exception.InvalidFileContentException;
 import com.midterm.group4.exception.ObjectNotFoundException;
 import com.midterm.group4.service.ProductService;
@@ -74,8 +75,8 @@ public class ProductController {
             @Parameter(description = "Page size", example = "10") @RequestParam(defaultValue = "10", required = false) int pageSize,
             @Parameter(description = "Sort order", example = "asc") @RequestParam(defaultValue = "asc", required = false) String sortOrder,
             @Parameter(description = "Sort by field", example = "name") @RequestParam(defaultValue = "name", required = false) String sortBy,
-            @Parameter(description = "Product name") @RequestParam(value = "name", required = false) String name,
-            @Parameter(description = "Product status") @RequestParam(value = "status", required = false) String status
+            @Parameter(description = "Product name") @RequestParam(required = false) String name,
+            @Parameter(description = "Product status") @RequestParam(required = false) String status
     ) {
         Page<Product> pageProduct = productService.findAllByQuery(pageNo, pageSize, sortOrder, sortBy, name, status);
         List<ReadProductDTO> listProductDTOs = pageProduct.getContent().stream()
@@ -103,8 +104,7 @@ public class ProductController {
     })
     @PostMapping("/{id}/activate")
     public ResponseEntity<ReadProductDTO> productActivation(@Parameter(description = "Product ID") @PathVariable UUID id) throws ObjectNotFoundException{
-        productService.updateStatus(id, true);
-        Product product = productService.findById(id);
+        Product product = productService.updateStatus(id, true);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(productMapper.toReadProductDto(product));
     }
 
@@ -115,8 +115,7 @@ public class ProductController {
     })
     @PostMapping("/{id}/deactivate")
     public ResponseEntity<ReadProductDTO> productDeactivate(@Parameter(description = "Product ID") @PathVariable UUID id) throws ObjectNotFoundException{
-        productService.updateStatus(id, false);
-        Product product = productService.findById(id);
+        Product product = productService.updateStatus(id, false);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(productMapper.toReadProductDto(product));
     }
 
@@ -152,11 +151,11 @@ public class ProductController {
     @PostMapping("/import")
     public ResponseEntity<String> importProduct(@Parameter(description = "Excel file") @RequestParam("file") MultipartFile file) {
         try {
-            List<Product> listProduct = FileUtils.readEmployeeFromExcel(file);
+            List<Product> listProduct = FileUtils.readProductFromExcel(file);
             productService.saveAll(listProduct);
             return ResponseEntity.status(HttpStatus.ACCEPTED).body("Products imported successfully");
         } catch (InvalidFileContentException e) {
-            return ResponseEntity.badRequest().body("Invalid file content: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid file content: " + e.getMessage());
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing the file: " + e.getMessage());
         }
