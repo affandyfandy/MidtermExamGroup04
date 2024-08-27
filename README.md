@@ -16,7 +16,7 @@ The objective of this project is to develop a Point of Sale (POS) system designe
 
 ### Business Flow
 
-![business-flow.png](/MidtermExamGroup04/img/business-flow.png)
+![business-flow.png](/img/business-flow.png)
 
 ### Project Requirements
 
@@ -53,7 +53,7 @@ Represents a summary of the customer’s purchase, including all order lines and
 - **Invoice** has many **OrderItem**
 - **OrderItem** references **Product** and **Invoice**
 
-![class-diagram.png](/MidtermExamGroup04/img/class-diagram.png)
+![class-diagram.png](/img/class-diagram.png)
 
 ## Designing
 
@@ -159,11 +159,11 @@ CREATE TABLE order_item (
 
 ### Swagger Documentation
 
-![swagger.png](/MidtermExamGroup04/img/swagger.png)
+![swagger.png](/img/swagger.png)
 
 ### Exported Excel
 
-![exported-excel.png](/MidtermExamGroup04/img/exported-excel.png)
+![exported-excel.png](/img/exported-excel.png)
 
 ---
 
