@@ -9,6 +9,6 @@ public interface CustomerService {
     Page<Customer> findAll(int pageNo, int pageSize);
     Customer findById(UUID id);
     Customer saveCustomer(Customer customer);
-    void updateStatus(UUID id, boolean status);
-    Customer update(UUID id, Customer customer);
+    Customer updateNew(UUID id, Customer customer);
+    Customer updateStatusNew(UUID id, boolean status);
 }

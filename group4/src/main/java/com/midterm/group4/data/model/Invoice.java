@@ -47,9 +47,9 @@ public class Invoice {
 
     @PrePersist
     protected void onCreate() {
-        if (invoiceId == null) {
-            invoiceId = UUID.randomUUID();
-        }
+        // if (invoiceId == null) {
+        //     invoiceId = UUID.randomUUID();
+        // }
         createdTime = LocalDateTime.now();
         updatedTime = LocalDateTime.now();
     }

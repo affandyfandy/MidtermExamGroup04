@@ -1,19 +1,18 @@
-package com.midterm.group4.service;
+package com.midterm.group4.utils;
 
 import com.midterm.group4.data.model.Invoice;
 import com.midterm.group4.data.model.OrderItem;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.stereotype.Service;
-
+import org.springframework.stereotype.Component;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 
-@Service
-public class ExcelExportService {
+@Component
+public class ExcelUtils {
 
     public ByteArrayOutputStream exportInvoice(List<Invoice> invoices) throws IOException{
 

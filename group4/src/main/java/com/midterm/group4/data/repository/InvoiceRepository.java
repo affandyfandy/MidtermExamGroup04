@@ -27,7 +27,7 @@ public interface InvoiceRepository extends JpaRepository<Invoice, UUID> {
     Page<Invoice> findAllByInvoiceDate(@Param("invoiceDate") String invoiceDate, Pageable pageable);
 
     @Query("SELECT i FROM Invoice i WHERE FUNCTION('MONTH', i.invoiceDate) = :month")
-    Page<Invoice> findAllByMonth(@Param("month") String month, Pageable pageable);
+    Page<Invoice> findAllByMonth(@Param("month") int month, Pageable pageable);
 
     @Query("SELECT i FROM Invoice i WHERE i.customer.id = :customerId AND FUNCTION('DATE', i.invoiceDate) = :invoiceDate")
     Page<Invoice> findAllByCustomerIdAndInvoiceDate(@Param("customerId") UUID customerId, @Param("invoiceDate") String invoiceDate, Pageable pageable);
@@ -46,14 +46,6 @@ public interface InvoiceRepository extends JpaRepository<Invoice, UUID> {
                             @Param("invoiceDate") String invoiceDate,
                             @Param("month") String month,
                             Pageable pageable);
-// =======
-    Page<Invoice> findByInvoiceDate(LocalDate invoiceDate, Pageable pageable);
-
-    @Query("SELECT i FROM Invoice i WHERE FUNCTION('MONTH', i.invoiceDate) = :month")
-    Page<Invoice> findByMonth(@Param("month") int month, Pageable pageable);
-
-    @Query("SELECT i FROM Invoice i WHERE i.customer.firstName LIKE %:customerName% OR i.customer.lastName LIKE %:customerName%")
-    List<Invoice> findByCustomerNameContaining(@Param("customerName") String customerName);
 
     @Query("SELECT SUM(i.totalAmount) FROM Invoice i WHERE i.invoiceDate = :date")
     BigInteger findTotalAmountByDate(@Param("date") LocalDate date);

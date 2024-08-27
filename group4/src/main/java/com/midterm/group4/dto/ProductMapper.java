@@ -9,15 +9,6 @@ import com.midterm.group4.dto.response.ReadProductDTO;
 @Mapper(componentModel = "spring", uses = {OrderItemMapper.class})
 public interface ProductMapper {
     Product toEntity(CreateProductDTO dto);
-
-    // ProductDTO toDto(Product product);
-    // List<ProductDTO> toListDto(List<Product> products);
-
     ReadProductDTO toReadProductDto(Product product);
     List<ReadProductDTO> toListReadProductDto(List<Product> listProducts);
-    // List<Product> toListEntity(List<ProductDTO> listProductDTOs);
-
-    // Product toEntity(CreateProductOrderDTO dto);
-
-    // List<Product> toListEntity(List<CreateProductOrderDTO> dto);
 }

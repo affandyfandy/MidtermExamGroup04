@@ -12,6 +12,6 @@ public interface ProductService {
     Product save(Product product);
     void saveAll(List<Product> products);
     Product update(UUID id, Product product);
-    void updateStatus(UUID id, boolean status);
+    Product updateStatus(UUID id, boolean status);
     Page<Product> findAllByQuery(int pageNo, int pageSize, String sortBy, String sortOrder, String name, String status);
 }
