@@ -1,22 +1,14 @@
 {
-  "user": [
+  "admin": [
     {
       "id": "1",
-      "username": "hmdStruick",
-      "password": "123hamdanEA",
-      "customerId": ""
+      "username": "hamdan",
+      "password": "123hamdanEA"
     },
     {
       "id": "2",
       "username": "adindiah",
-      "password": "fahira123",
-      "customerId": ""
-    },
-    {
-      "id": "1",
-      "username": "hmdStruick",
-      "password": "123hamdanEA",
-      "customerId": ""
+      "password": "fahira123"
     }
   ]
 }
