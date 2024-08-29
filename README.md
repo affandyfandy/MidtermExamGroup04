@@ -113,6 +113,65 @@ CREATE TABLE order_item (
 
 ## Implementation
 
+### Project Structure (Backend)
+```
+group4/
+│
+├── src/main/                        
+│   ├── java/com/example/group4                    
+│   │   ├── controller/
+│   │   ├── data/
+│   │   ├── dto/
+│   │   ├── repository/
+│   │   ├── exception/
+│   │   ├── service/
+│   │   ├── utils/
+│   │   └── config/
+│   │
+│   ├── resources/             
+│   │   ├── application.properties
+│   │   ├── static/
+│   │   └── templates/
+│   │   
+│   ├── test/                          
+├── pom.xml
+```
+
+### Project Structure (Frontend)
+```
+MidtermExamGroup04/
+│
+├── group4-client/                  
+│   ├── api/                        
+│   │   ├── server.js               
+│   │   └── db.json                 
+│   ├── src/                        
+│   │   ├── app/                    
+│   │   │   ├── config/             
+│   │   │   ├── main/               
+│   │   │   │   ├── components/    
+│   │   │   │   │   ├── footer/    
+│   │   │   │   │   ├── header/    
+│   │   │   │   │   ├── main/      
+│   │   │   │   │   └── sidebar/   
+│   │   │   │   └── guards/        
+│   │   │   ├── models/             
+│   │   │   ├── pages/             
+│   │   │   │   ├── customer/      
+│   │   │   │   ├── invoice/       
+│   │   │   │   ├── login/         
+│   │   │   │   └── product/       
+│   │   │   ├── services/           
+│   │   ├── assets/                 
+│   │   ├── styles/                
+│   ├── angular.json                
+│   ├── package.json                
+│
+├── .gitignore                      
+├── README.md                       
+└── package.json                    
+```
+
 ### List of Endpoints
 
 #### Customer
@@ -142,7 +201,6 @@ CREATE TABLE order_item (
 
 
 #### Product
-
 
 | Method | Endpoint                                  | Description                                    |
 |--------|-------------------------------------------|------------------------------------------------|
