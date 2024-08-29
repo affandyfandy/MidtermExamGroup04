@@ -31,6 +31,7 @@ export class ProductFormComponent implements OnInit{
 
   ngOnInit(): void {
     if (this.product) {
+      console.log("quantity " + this.product.quantity);
       this.productForm.patchValue({
         name: this.product.name,
         price: this.product.price,

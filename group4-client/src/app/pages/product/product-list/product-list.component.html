@@ -1,11 +1,14 @@
 <div class="min-h-screen w-full">
   <div class="p-6 bg-white rounded-lg shadow-md">
-    <h1 class="mb-4 text-2xl font-bold text-purple-600">Products</h1>
-    <p class="mb-6 text-gray-600">All products data, easily managed at the tip of your hand</p>
-    <button class="px-4 py-2 mb-4 text-white bg-purple-600 rounded hover:bg-purple-700 focus:outline-none"
-          (click)="openAddProductModal()">
-          Add Product
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h1 class="text-2xl font-bold text-[#9E16B6]">Product</h1>
+        <p class="text-gray-600">All products data, easily managed at the tip of your hand</p>
+      </div>
+      <button (click)="openAddProductModal()" class="px-4 py-2 text-white bg-[#9E16B6] rounded hover:bg-[#8A0CA1] focus:outline-none">
+        Add Product +
       </button>
+    </div>
 
   <div *ngIf="isLoading" class="loading-spinner">
     <p>Loading...</p>
@@ -16,21 +19,21 @@
   </div>
 
   <table *ngIf="!isLoading && !error" class="p-6 bg-white rounded-lg table-auto">
-      <thead class="text-white bg-violet-500">
+      <thead class="text-white bg-[#9E16B6]">
           <tr>
-              <th class="p-3 text-left cursor-pointer hover:bg-purple-700">
+              <th class="p-3 text-left cursor-pointer hover:bg-[#8A0CA1]">
                   No
               </th>
-              <th class="p-3 text-left cursor-pointer hover:bg-purple-700" (click)="sortBy('name')">
+              <th class="p-3 text-left cursor-pointer hover:bg-[#8A0CA1]" (click)="sortBy('name')">
                   Name
               </th>
-              <th class="p-3 text-left cursor-pointer hover:bg-purple-700" (click)="sortBy('price')">
+              <th class="p-3 text-left cursor-pointer hover:bg-[#8A0CA1]" (click)="sortBy('price')">
                   Price
               </th>
-              <th class="p-3 text-left cursor-pointer hover:bg-purple-700">
+              <th class="p-3 text-left cursor-pointer hover:bg-[#8A0CA1]">
                   Status
               </th>
-              <th class="p-3 text-left hover:bg-purple-700">Action</th>
+              <th class="p-3 text-left hover:bg-[#8A0CA1]">Action</th>
           </tr>
       </thead>
       <tbody>
@@ -62,7 +65,7 @@
             </td>
             <td>
               <button
-                class="text-white transition bg-purple-600 rounded-lg"
+                class="text-white transition bg-purple-700 hover:bg-purple-900 rounded-lg"
                 (click)="applyFilter()">
                 Search
               </button>
@@ -85,10 +88,18 @@
               </label>
             </td>
             <td class="flex gap-3 p-3">
-                <button class="px-4 py-2 text-white transition bg-green-500 rounded-lg hover:bg-green-700"
-                    (click)="openEditProductModal(item)">Edit</button>
-                <button class="px-4 py-2 text-white transition bg-blue-500 rounded-lg hover:bg-blue-700"
-                    (click)="detailProduct(item)">Detail</button>
+              <button class="flex items-center justify-center w-24 px-3 py-1 text-white bg-[#9E16B6] rounded hover:bg-[#8A0CA1] focus:outline-none" (click)="openEditProductModal(item)">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M4 21v-4l12-12 4 4-12 12H4zm16-12l-4-4 2-2 4 4-2 2z"/>
+                </svg>
+                Edit
+              </button>
+              <button class="flex items-center justify-center w-24 px-3 py-1 text-white bg-purple-700 rounded hover:bg-purple-900 focus:outline-none" (click)="detailProduct(item)">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6h18M3 12h18m-9 6h9"/>
+                </svg>
+                Detail
+              </button>
             </td>
         </tr>
       </tbody>
@@ -96,10 +107,10 @@
 
   <div class="flex items-center justify-center mt-5">
       <button (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1"
-          class="px-5 py-3 text-white transition bg-blue-500 rounded-lg hover:bg-gray-700 disabled:bg-gray-300 disabled:cursor-not-allowed">Previous</button>
+          class="px-5 py-3 text-white transition bg-[#9E16B6] rounded-lg hover:bg-[#8A0CA1] disabled:bg-gray-300 disabled:cursor-not-allowed">Previous</button>
       <span class="mx-5 text-lg">Page {{ currentPage }} of {{ totalPages }}</span>
       <button (click)="changePage(currentPage + 1)" [disabled]="currentPage >= totalPages"
-          class="px-5 py-3 text-white transition bg-blue-500 rounded-lg hover:bg-gray-700 disabled:bg-gray-300 disabled:cursor-not-allowed">Next</button>
+          class="px-5 py-3 text-white transition bg-[#9E16B6] rounded-lg hover:bg-[#8A0CA1] disabled:bg-gray-300 disabled:cursor-not-allowed">Next</button>
   </div>
 
   <app-product-form *ngIf="isModalVisible" [product]="selectedProduct" [action]="action" (save)="handleSave($event)"
