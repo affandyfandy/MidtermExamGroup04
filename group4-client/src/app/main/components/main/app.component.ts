@@ -4,6 +4,7 @@ import { ProductListComponent } from '../../../pages/product/product-list/produc
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { filter } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
+import { FooterComponent } from '../footer/footer.component';
 
 @Component({
   selector: 'app-root',
@@ -12,7 +13,8 @@ import { CommonModule } from '@angular/common';
     CommonModule,
     RouterOutlet,
     ProductListComponent,
-    SidebarComponent
+    SidebarComponent,
+    FooterComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'

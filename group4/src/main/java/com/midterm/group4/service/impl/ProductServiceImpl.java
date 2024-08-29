@@ -77,10 +77,10 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     @Transactional
-    public Page<Product> findAllByQuery(int pageNo, int pageSize, String sortOrder, String sortBy, String name, String status) {
+    public Page<Product> findAllByQuery(int pageNo, int pageSize, String sortBy, String sortOrder, String name, String status) {
         Sort.Direction direction = "desc".equalsIgnoreCase(sortOrder) ? Sort.Direction.DESC : Sort.Direction.ASC;
-        Sort sort = Sort.by(direction,sortBy);
-        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        // Sort sort = Sort.by(direction,sortBy);
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
     
         boolean stat = false;
         if (status != null && "active".equalsIgnoreCase(status)) {

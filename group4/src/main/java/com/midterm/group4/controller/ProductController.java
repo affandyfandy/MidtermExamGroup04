@@ -80,6 +80,8 @@ public class ProductController {
             @Parameter(description = "Product status") @RequestParam(required = false) String status
     ) {
         Page<Product> pageProduct = productService.findAllByQuery(pageNo, pageSize, sortBy, sortOrder, name, status);
+        System.out.println("sprttt by " + sortBy);
+        System.out.println("sprtt order " + sortOrder);
         List<ReadProductDTO> listProductDTOs = pageProduct.getContent().stream()
                 .map(product -> productMapper.toReadProductDto(product))
                 .collect(Collectors.toList());

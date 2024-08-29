@@ -29,8 +29,8 @@ export class ProductService {
     const params = new HttpParams()
       .set('pageNo', pageNo.toString())
       .set('pageSize', pageSize.toString())
-      .set('sortOrder', `${sortOrder}`)
-      .set('sortBy', `${sortBy}`);
+      .set('sortBy', `${sortBy}`)
+      .set('sortOrder', `${sortOrder}`);
 
     return this.http.get<ProductResponse>(baseUrl, { params });
   }
@@ -102,8 +102,8 @@ export class ProductService {
     let params = new HttpParams()
       .set('pageNo', pageNo.toString())
       .set('pageSize', pageSize.toString())
-      .set('sortOrder', sortOrder)
-      .set('sortBy', sortBy);
+      .set('sortBy', sortBy)
+      .set('sortOrder', sortOrder);
 
     if (name) {
       params = params.set('name', name);

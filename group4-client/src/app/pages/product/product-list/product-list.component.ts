@@ -152,7 +152,7 @@ export class ProductListComponent implements OnInit{
   }
 
   applyFilter(): void {
-    this.productService.searchProducts(this.currentPage, this.pageSize, this.sortColumn, this.sortDirection, this.searchName, this.searchStatus).subscribe({
+    this.productService.searchProducts(this.currentPage-1, this.pageSize, this.sortColumn, this.sortDirection, this.searchName, this.searchStatus).subscribe({
       next: (response: ProductResponse) => {
         this.products = response.content;
         this.filteredProduct = this.products;

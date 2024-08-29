@@ -12,7 +12,7 @@ import java.util.UUID;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, UUID>{
 
-    @Query(value = "SELECT p FROM Product p WHERE p.name LIKE %:name%")
+    @Query(value = "SELECT p FROM Product p WHERE p.name LIKE :name")
     Page<Product> findAllByName(@Param("name") String name, Pageable pageable);
 
     @Query(value = "SELECT p FROM Product p WHERE p.isActive = :status")
