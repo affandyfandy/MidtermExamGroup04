@@ -1,69 +1,207 @@
-<div class="min-h-screen">
-    <div class="p-6 bg-white rounded-lg shadow-md">
-      <h1 class="mb-4 text-2xl font-bold text-purple-600">Customer</h1>
-      <p class="mb-6 text-gray-600">All customers data, easily managed at the tip of your hand</p>
-      <button class="px-4 py-2 mb-4 text-white bg-purple-600 rounded hover:bg-purple-700 focus:outline-none">
-        Add customer +
+<div class="min-h-screen p-6 bg-gray-100">
+  <div class="p-6 bg-white rounded-lg shadow-md">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h1 class="text-2xl font-bold text-[#9E16B6]">Customer</h1>
+        <p class="text-gray-600">All customers data, easily managed at the tip of your hand</p>
+      </div>
+      <button (click)="openAddCustomerModal()" class="px-4 py-2 text-white bg-[#9E16B6] rounded hover:bg-[#8A0CA1] focus:outline-none">
+        Add Customer +
       </button>
+    </div>
 
-      <div class="overflow-x-auto">
-        <table class="min-w-full bg-white">
-          <thead>
-            <tr>
-              <th class="w-1/6 px-4 py-3 text-sm font-semibold text-left text-purple-600 uppercase">
-                CUSTOMER ID <input type="text" placeholder="Search" class="p-1 ml-2 border rounded" />
-              </th>
-              <th class="w-1/6 px-4 py-3 text-sm font-semibold text-left text-purple-600 uppercase">
-                FIRST NAME <input type="text" placeholder="Search" class="p-1 ml-2 border rounded" />
-              </th>
-              <th class="w-1/6 px-4 py-3 text-sm font-semibold text-left text-purple-600 uppercase">
-                LAST NAME <input type="text" placeholder="Search" class="p-1 ml-2 border rounded" />
-              </th>
-              <th class="w-1/6 px-4 py-3 text-sm font-semibold text-left text-purple-600 uppercase">
-                PHONE <input type="text" placeholder="Search" class="p-1 ml-2 border rounded" />
-              </th>
-              <th class="w-1/6 px-4 py-3 text-sm font-semibold text-left text-purple-600 uppercase">
-                ACTIVATE
-              </th>
-              <th class="w-1/6 px-4 py-3 text-sm font-semibold text-left text-purple-600 uppercase">
-                ACTION
-              </th>
-            </tr>
-          </thead>
-          <tbody class="text-gray-700">
-            <tr *ngFor="let customer of customers" class="bg-gray-100 hover:bg-gray-200">
-              <td class="w-1/6 px-4 py-3 text-left">{{ customer.customerId }}</td>
-              <td class="w-1/6 px-4 py-3 text-left">{{ customer.firstName }}</td>
-              <td class="w-1/6 px-4 py-3 text-left">{{ customer.lastName }}</td>
-              <td class="w-1/6 px-4 py-3 text-left">{{ customer.phone }}</td>
-              <td class="w-1/6 px-4 py-3 text-left">
-                <label class="switch">
-                  <input type="checkbox" [(ngModel)]="customer.active" (change)="customer.active ? activateCustomer(customer) : deactivateCustomer(customer)">
-                  <span class="slider round"></span>
-                </label>
-              </td>
-              <td class="w-1/6 px-4 py-3 text-left">
-                <button class="px-2 py-1 mr-2 text-white bg-purple-600 rounded hover:bg-purple-700 focus:outline-none" (click)="editCustomer(customer)">
+    <div class="overflow-x-auto">
+      <table class="min-w-full bg-white rounded-lg shadow">
+        <thead class="text-white bg-[#9E16B6]">
+          <tr>
+            <th class="w-1/12 px-2 py-3 text-sm font-semibold text-left uppercase hover:bg-[#8A0CA1] cursor-pointer" (click)="sortData('index')">
+              INDEX
+              <span *ngIf="sortField === 'index'">
+                <svg *ngIf="sortDirection === 'asc'" xmlns="http://www.w3.org/2000/svg" class="inline-block w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M6 10l4 4 4-4H6z" clip-rule="evenodd"/>
+                </svg>
+                <svg *ngIf="sortDirection === 'desc'" xmlns="http://www.w3.org/2000/svg" class="inline-block w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M14 10l-4-4-4 4h8z" clip-rule="evenodd"/>
+                </svg>
+              </span>
+            </th>
+            <th class="w-2/12 px-4 py-3 text-sm font-semibold text-left uppercase hover:bg-[#8A0CA1] cursor-pointer" (click)="sortData('firstName')">
+              FIRST NAME
+              <span *ngIf="sortField === 'firstName'">
+                <svg *ngIf="sortDirection === 'asc'" xmlns="http://www.w3.org/2000/svg" class="inline-block w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M6 10l4 4 4-4H6z" clip-rule="evenodd"/>
+                </svg>
+                <svg *ngIf="sortDirection === 'desc'" xmlns="http://www.w3.org/2000/svg" class="inline-block w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M14 10l-4-4-4 4h8z" clip-rule="evenodd"/>
+                </svg>
+              </span>
+            </th>
+            <th class="w-2/12 px-4 py-3 text-sm font-semibold text-left uppercase hover:bg-[#8A0CA1] cursor-pointer" (click)="sortData('lastName')">
+              LAST NAME
+              <span *ngIf="sortField === 'lastName'">
+                <svg *ngIf="sortDirection === 'asc'" xmlns="http://www.w3.org/2000/svg" class="inline-block w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M6 10l4 4 4-4H6z" clip-rule="evenodd"/>
+                </svg>
+                <svg *ngIf="sortDirection === 'desc'" xmlns="http://www.w3.org/2000/svg" class="inline-block w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M14 10l-4-4-4 4h8z" clip-rule="evenodd"/>
+                </svg>
+              </span>
+            </th>
+            <th class="w-2/12 px-4 py-3 text-sm font-semibold text-left uppercase hover:bg-[#8A0CA1] cursor-pointer" (click)="sortData('phone')">
+              PHONE
+              <span *ngIf="sortField === 'phone'">
+                <svg *ngIf="sortDirection === 'asc'" xmlns="http://www.w3.org/2000/svg" class="inline-block w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M6 10l4 4 4-4H6z" clip-rule="evenodd"/>
+                </svg>
+                <svg *ngIf="sortDirection === 'desc'" xmlns="http://www.w3.org/2000/svg" class="inline-block w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M14 10l-4-4-4 4h8z" clip-rule="evenodd"/>
+                </svg>
+              </span>
+            </th>
+            <th class="w-2/12 px-4 py-3 text-sm font-semibold text-center uppercase hover:bg-[#8A0CA1] cursor-pointer" (click)="sortData('active')">
+              ACTIVATE
+              <span *ngIf="sortField === 'active'">
+                <svg *ngIf="sortDirection === 'asc'" xmlns="http://www.w3.org/2000/svg" class="inline-block w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M6 10l4 4 4-4H6z" clip-rule="evenodd"/>
+                </svg>
+                <svg *ngIf="sortDirection === 'desc'" xmlns="http://www.w3.org/2000/svg" class="inline-block w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M14 10l-4-4-4 4h8z" clip-rule="evenodd"/>
+                </svg>
+              </span>
+            </th>
+            <th class="w-3/12 px-4 py-3 text-sm font-semibold text-left uppercase hover:bg-[#8A0CA1]">ACTION</th>
+          </tr>
+          <!-- Search Inputs -->
+          <tr class="text-black">
+            <th class="px-2 py-2 bg-white"></th>
+            <th class="relative px-4 py-2 bg-white">
+              <form class="max-w-md mx-auto">
+                <div class="relative">
+                    <div class="absolute inset-y-0 flex items-center pointer-events-none start-0 ps-3">
+                        <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                        </svg>
+                    </div>
+                    <input type="search" class="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg ps-10 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search" required />
+                </div>
+              </form>
+            </th>
+            <th class="relative px-4 py-2 bg-white">
+              <form class="max-w-md mx-auto">
+                <div class="relative">
+                    <div class="absolute inset-y-0 flex items-center pointer-events-none start-0 ps-3">
+                        <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                        </svg>
+                    </div>
+                    <input type="search" class="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg ps-10 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search" required />
+                </div>
+              </form>
+            </th>
+            <th class="relative px-4 py-2 bg-white">
+              <form class="max-w-md mx-auto">
+                <div class="relative">
+                    <div class="absolute inset-y-0 flex items-center pointer-events-none start-0 ps-3">
+                        <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                        </svg>
+                    </div>
+                    <input type="search" class="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg ps-10 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search" required />
+                </div>
+              </form>
+            </th>
+            <th class="px-4 py-2 bg-white"></th>
+            <th class="px-4 py-2 bg-white"></th>
+          </tr>
+        </thead>
+        <tbody class="text-gray-700">
+          <tr *ngFor="let customer of customers; let i = index" class="even:bg-gray-100 hover:bg-gray-200">
+            <td class="px-2 py-3 text-left">{{ (currentPage - 1) * pageSize + i + 1 }}</td>
+            <td class="px-4 py-3 text-left">{{ customer.firstName }}</td>
+            <td class="px-4 py-3 text-left">{{ customer.lastName }}</td>
+            <td class="px-4 py-3 text-left">{{ customer.phone }}</td>
+            <td class="px-4 py-3 text-center">
+              <label class="inline-flex items-center cursor-pointer">
+                <input type="checkbox" [checked]="customer.active" (change)="toggleCustomerActivation(customer)" class="sr-only peer">
+                <div class="relative w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-[#76EE59] rounded-full peer dark:bg-gray-700 peer-checked:bg-green-500">
+                  <div class="absolute inset-y-0 left-0 w-6 h-6 m-0.5 bg-white border border-gray-300 rounded-full transition-transform transform peer-checked:translate-x-full"></div>
+                </div>
+              </label>
+            </td>
+            <td class="px-4 py-3 text-left">
+              <div class="flex items-center space-x-2">
+                <button class="flex items-center justify-center w-24 px-3 py-1 text-white bg-[#9E16B6] rounded hover:bg-[#8A0CA1] focus:outline-none" (click)="editCustomer(customer)">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M4 21v-4l12-12 4 4-12 12H4zm16-12l-4-4 2-2 4 4-2 2z"/>
+                  </svg>
                   Edit
                 </button>
-                <button class="px-2 py-1 text-white bg-red-600 rounded hover:bg-red-700 focus:outline-none" (click)="deleteCustomer(customer)">
-                  Delete
+                <button class="flex items-center justify-center w-24 px-3 py-1 text-white bg-purple-700 rounded hover:bg-purple-900 focus:outline-none" (click)="openCustomerDetailModal(customer)">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6h18M3 12h18m-9 6h9"/>
+                  </svg>
+                  Detail
                 </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-      <div class="flex items-center justify-between mt-4">
-        <span class="text-sm text-gray-600">Showing {{ pageSize }} of {{ totalItems }}</span>
-        <div class="flex">
-          <button *ngFor="let page of totalPages" (click)="onPageChange(page)"
-            class="px-2 py-1 text-sm bg-gray-300 rounded hover:bg-gray-400" [class.bg-purple-600]="currentPage === page" [class.text-white]="currentPage === page">
-            {{ page }}
-          </button>
-        </div>
+    <!-- Pagination Controls -->
+    <div class="flex items-center justify-between mt-4">
+      <span class="text-sm text-gray-600">Showing {{ pageSize }} of {{ totalItems }}</span>
+      <div class="flex space-x-2">
+        <button *ngFor="let page of totalPages" (click)="onPageChange(page)"
+          class="px-3 py-1 text-sm font-semibold rounded hover:bg-purple-700 focus:outline-none"
+          [ngClass]="{'bg-[#9E16B6] text-white': currentPage === page, 'bg-gray-300': currentPage !== page}">
+          {{ page }}
+        </button>
       </div>
-
     </div>
   </div>
+
+  <!-- Modal -->
+  <div *ngIf="showModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+    <div class="w-full max-w-md p-6 bg-white rounded-lg shadow-lg">
+      <h2 class="mb-4 text-2xl font-bold text-purple-600">{{ isDetailMode ? 'Customer Detail' : (selectedCustomer ? 'Edit Customer' : 'Add Customer') }}</h2>
+
+      <div *ngIf="!isDetailMode">
+        <form (ngSubmit)="saveCustomer()">
+          <div class="mb-4">
+            <label for="firstName" class="block mb-2 text-sm font-medium text-gray-700">First Name</label>
+            <input type="text" id="firstName" [(ngModel)]="selectedCustomer!.firstName" name="firstName" required
+              class="w-full px-3 py-2 border rounded-lg focus:ring-[#9E16B6] focus:border-[#9E16B6]" />
+          </div>
+          <div class="mb-4">
+            <label for="lastName" class="block mb-2 text-sm font-medium text-gray-700">Last Name</label>
+            <input type="text" id="lastName" [(ngModel)]="selectedCustomer!.lastName" name="lastName" required
+              class="w-full px-3 py-2 border rounded-lg focus:ring-[#9E16B6] focus:border-[#9E16B6]" />
+          </div>
+          <div class="mb-4">
+            <label for="phone" class="block mb-2 text-sm font-medium text-gray-700">Phone</label>
+            <input type="text" id="phone" [(ngModel)]="selectedCustomer!.phone" name="phone" required
+              class="w-full px-3 py-2 border rounded-lg focus:ring-[#9E16B6] focus:border-[#9E16B6]" />
+          </div>
+          <div class="flex justify-end">
+            <button type="button" (click)="closeAddCustomerModal()" class="px-4 py-2 mr-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300">No, cancel</button>
+            <button type="submit" class="px-4 py-2 text-white bg-[#9E16B6] rounded hover:bg-[#8A0CA1]">{{ selectedCustomer ? 'Save Changes' : 'Yes, confirm' }}Yes, confirm</button>
+          </div>
+        </form>
+      </div>
+
+      <div *ngIf="isDetailMode">
+        <p><strong>Customer ID:</strong> {{ selectedCustomer!.customerId }}</p>
+        <p><strong>First Name:</strong> {{ selectedCustomer!.firstName }}</p>
+        <p><strong>Last Name:</strong> {{ selectedCustomer!.lastName }}</p>
+        <p><strong>Phone:</strong> {{ selectedCustomer!.phone }}</p>
+        <p><strong>Status:</strong> {{ selectedCustomer!.active ? 'Active' : 'Inactive' }}</p>
+
+        <div class="flex justify-end mt-4">
+          <button type="button" (click)="closeAddCustomerModal()" class="px-4 py-2 bg-[#9E16B6] rounded hover:bg-[#8A0CA1]">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

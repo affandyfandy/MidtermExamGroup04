@@ -14,4 +14,5 @@ public class ReadProductDTO {
     private String name;
     private boolean isActive;
     private BigInteger price;
+    private Integer quantity;
 }
