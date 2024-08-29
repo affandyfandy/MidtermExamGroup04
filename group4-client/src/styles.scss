@@ -110,6 +110,19 @@ th {
     z-index: 999;
 }
 
+.loading-spinner {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  /* Add styles for your spinner */
+}
+
+.fa-icon {
+  font-size: 16px; /* Adjust size as needed */
+  vertical-align: middle;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .container {

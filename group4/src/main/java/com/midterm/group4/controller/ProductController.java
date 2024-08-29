@@ -17,12 +17,12 @@ import com.midterm.group4.data.model.Product;
 import com.midterm.group4.dto.ProductMapper;
 import com.midterm.group4.dto.request.CreateProductDTO;
 import com.midterm.group4.dto.response.ReadProductDTO;
-import com.midterm.group4.exception.ErrorResponse;
 import com.midterm.group4.exception.InvalidFileContentException;
 import com.midterm.group4.exception.ObjectNotFoundException;
 import com.midterm.group4.service.ProductService;
 import com.midterm.group4.utils.FileUtils;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,6 +37,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 @RestController
 @RequestMapping("/api/v1/product")
+@CrossOrigin(origins = "http://localhost:4200") 
 @Tag(name = "Product Management", description = "APIs for managing products")
 public class ProductController {
 

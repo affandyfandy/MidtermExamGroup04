@@ -1,69 +1,60 @@
 <div class="p-5 mx-auto my-8 bg-white rounded-lg shadow-lg max-w-90">
   <div class="flex items-center mb-5">
-      <p>All products data, easily managed at the tip of your hand </p>
+      <p class="text-lg">All products data, easily managed at the tip of your hand</p>
       <button class="px-5 py-3 ml-5 text-white transition bg-blue-500 rounded-lg hover:bg-blue-700"
-          (click)="openAddProductModal()">Add Product
-          <fa-icon [icon]="['fas', 'plus']" class="mr-2"></fa-icon>
+          (click)="openAddProductModal()">
+          Add Product
       </button>
   </div>
-  <table class="w-full mb-5 bg-white rounded-lg shadow-lg table-auto">
+
+  <div *ngIf="isLoading" class="loading-spinner">
+    <p>Loading...</p>
+  </div>
+
+  <div *ngIf="error" class="text-center text-red-500 p-5">
+    <p>{{ error }}</p>
+  </div>
+
+  <table *ngIf="!isLoading && !error" class="w-full mb-5 bg-white rounded-lg shadow-lg table-auto">
       <thead class="text-white bg-blue-500">
           <tr>
               <th class="p-3 text-left cursor-pointer hover:bg-blue-600">
                   No
               </th>
-              <th class="p-3 text-left cursor-pointer hover:bg-blue-600"
-                  (click)="sortBy('name')">
+              <th class="p-3 text-left cursor-pointer hover:bg-blue-600" (click)="sortBy('name')">
                   Name
-                  <fa-icon [icon]="sortColumn === 'name' ? (sortDirection === 'asc' ? faArrowUp : faArrowDown) : faSort"
-                      class="ml-2"></fa-icon>
               </th>
               <th class="p-3 text-left cursor-pointer hover:bg-blue-600" (click)="sortBy('price')">
                   Price
-                  <fa-icon [icon]="sortColumn === 'price' ? (sortDirection === 'asc' ? faArrowUp : faArrowDown) : faSort"
-                      class="ml-2"></fa-icon>
               </th>
               <th class="p-3 text-left cursor-pointer hover:bg-blue-600">
                   Status
-              </th>
-              <th class="p-3 text-left cursor-pointer hover:bg-blue-600" (click)="sortBy('createdAt')">
-                  Created At
-                  <fa-icon [icon]="sortColumn === 'createdAt' ? (sortDirection === 'asc' ? faArrowUp : faArrowDown) : faSort"
-                      class="ml-2"></fa-icon>
-              </th>
-              <th class="p-3 text-left cursor-pointer hover:bg-blue-600" (click)="sortBy('updatedAt')">
-                  Updated At
-                  <fa-icon [icon]="sortColumn === 'updatedAt' ? (sortDirection === 'asc' ? faArrowUp : faArrowDown) : faSort"
-                      class="ml-2"></fa-icon>
               </th>
               <th class="p-3 text-left hover:bg-blue-600">Actions</th>
           </tr>
       </thead>
       <tbody>
-          <tr *ngFor="let item of filteredProduct, let i = index"
-              class="transition even:bg-gray-100 hover:bg-gray-200">
-              <td class="p-3">{{ i + 1 }}</td>
+          <tr *ngFor="let item of filteredProduct; let i = index" class="transition even:bg-gray-100 hover:bg-gray-200">
+              <td class="p-3">{{ (currentPage - 1) * pageSize + i + 1 }}</td>
               <td class="p-3">{{ item.name }}</td>
               <td class="p-3">{{ item.price | currency:'IDR' }}</td>
               <td class="p-3">
                 <label class="relative inline-block h-8 w-14">
-                  <input type="checkbox" [checked]="item.isActive" (change)="toggleItemStatus(item)"
+                  <input type="checkbox" [checked]="item.active" (change)="toggleItemStatus(item)"
                       class="sr-only">
                   <span
                       class="absolute inset-0 bg-gray-300 rounded-full cursor-pointer transition duration-300
                              before:content-[''] before:absolute before:top-0.5 before:left-0.5 before:h-7 before:w-7
                              before:bg-white before:rounded-full before:transition before:duration-300"
-                      [class.bg-green-500]="item.isActive"
-                      [class.before:translate-x-6]="item.isActive"></span>
+                      [class.bg-green-500]="item.active"
+                      [class.before:translate-x-6]="item.active"></span>
                 </label>
               </td>
-              <td class="p-3">{{ item.createdAt | date:'dd/MMM/yyyy' }}</td>
-              <td class="p-3">{{ item.updatedAt | date:'dd/MMM/yyyy' }}</td>
               <td class="flex gap-3 p-3">
                   <button class="px-4 py-2 text-white transition bg-green-500 rounded-lg hover:bg-green-700"
                       (click)="openEditProductModal(item)">Edit</button>
                   <button class="px-4 py-2 text-white transition bg-red-500 rounded-lg hover:bg-red-700"
-                      (click)="detailProduct()">Detail</button>
+                      (click)="detailProduct(item)">Detail</button>
               </td>
           </tr>
       </tbody>
@@ -72,12 +63,11 @@
   <div class="flex items-center justify-center mt-5">
       <button (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1"
           class="px-5 py-3 text-white transition bg-blue-500 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed">Previous</button>
-      <span class="mx-5 text-lg">Page {{ currentPage }}</span>
-      <button (click)="changePage(currentPage + 1)"
-          [disabled]="currentPage * itemsPerPage >= products.length"
-          class="px-5 py-3 text-white transition bg-blue-500 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed">Next</button>
+      <span class="mx-5 text-lg">Page {{ currentPage }} of {{ totalPages }}</span>
+      <button (click)="changePage(currentPage + 1)" [disabled]="currentPage >= totalPages"
+          class="px-5 py-3 text-white transition bg-blue-500 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed">Previous</button>
   </div>
 
-  <!-- <app-product-form *ngIf="isModalVisible" [product]="selectedProduct" (save)="handleSave($event)"
-      (cancel)="handleCancel()"></app-product-form> -->
+  <app-product-form *ngIf="isModalVisible" [product]="selectedProduct" (save)="handleSave($event)"
+      (cancel)="handleCancel()"></app-product-form>
 </div>
