@@ -1,0 +1,109 @@
+<div class="min-h-screen w-full">
+  <div class="p-6 bg-white rounded-lg shadow-md">
+    <h1 class="mb-4 text-2xl font-bold text-purple-600">Products</h1>
+    <p class="mb-6 text-gray-600">All products data, easily managed at the tip of your hand</p>
+    <button class="px-4 py-2 mb-4 text-white bg-purple-600 rounded hover:bg-purple-700 focus:outline-none"
+          (click)="openAddProductModal()">
+          Add Product
+      </button>
+
+  <div *ngIf="isLoading" class="loading-spinner">
+    <p>Loading...</p>
+  </div>
+
+  <div *ngIf="error" class="text-center text-red-500 p-5">
+    <p>{{ error }}</p>
+  </div>
+
+  <table *ngIf="!isLoading && !error" class="p-6 bg-white rounded-lg table-auto">
+      <thead class="text-white bg-violet-500">
+          <tr>
+              <th class="p-3 text-left cursor-pointer hover:bg-purple-700">
+                  No
+              </th>
+              <th class="p-3 text-left cursor-pointer hover:bg-purple-700" (click)="sortBy('name')">
+                  Name
+              </th>
+              <th class="p-3 text-left cursor-pointer hover:bg-purple-700" (click)="sortBy('price')">
+                  Price
+              </th>
+              <th class="p-3 text-left cursor-pointer hover:bg-purple-700">
+                  Status
+              </th>
+              <th class="p-3 text-left hover:bg-purple-700">Action</th>
+          </tr>
+      </thead>
+      <tbody>
+        <tr>
+            <td></td>
+            <td>
+              <input
+                type="text"
+                placeholder="Search by name"
+                class="p-1 border rounded"
+                [(ngModel)]="searchName"
+              />
+            </td>
+            <td>
+              <input
+                type="text"
+                placeholder="Search by price"
+                class="p-1 border rounded"
+                [(ngModel)]="searchPrice"
+              />
+            </td>
+            <td>
+              <input
+                type="text"
+                placeholder="Search by status"
+                class="p-1 border rounded"
+                [(ngModel)]="searchStatus"
+              />
+            </td>
+            <td>
+              <button
+                class="text-white transition bg-purple-600 rounded-lg"
+                (click)="applyFilter()">
+                Search
+              </button>
+            </td>
+        </tr>
+        <tr *ngFor="let item of filteredProduct; let i = index" class="transition even:bg-gray-100 hover:bg-gray-200">
+            <td class="p-3">{{ (currentPage - 1) * pageSize + i + 1 }}</td>
+            <td class="p-3">{{ item.name }}</td>
+            <td class="p-3">{{ item.price | currency:'IDR' }}</td>
+            <td class="p-3">
+              <label class="relative inline-block h-8 w-14">
+                <input type="checkbox" [checked]="item.active" (change)="toggleItemStatus(item)"
+                    class="sr-only">
+                <span
+                    class="absolute inset-0 bg-gray-300 rounded-full cursor-pointer transition duration-300
+                            before:content-[''] before:absolute before:top-0.5 before:left-0.5 before:h-7 before:w-7
+                            before:bg-white before:rounded-full before:transition before:duration-300"
+                    [class.bg-green-500]="item.active"
+                    [class.before:translate-x-6]="item.active"></span>
+              </label>
+            </td>
+            <td class="flex gap-3 p-3">
+                <button class="px-4 py-2 text-white transition bg-green-500 rounded-lg hover:bg-green-700"
+                    (click)="openEditProductModal(item)">Edit</button>
+                <button class="px-4 py-2 text-white transition bg-blue-500 rounded-lg hover:bg-blue-700"
+                    (click)="detailProduct(item)">Detail</button>
+            </td>
+        </tr>
+      </tbody>
+  </table>
+
+  <div class="flex items-center justify-center mt-5">
+      <button (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1"
+          class="px-5 py-3 text-white transition bg-blue-500 rounded-lg hover:bg-gray-700 disabled:bg-gray-300 disabled:cursor-not-allowed">Previous</button>
+      <span class="mx-5 text-lg">Page {{ currentPage }} of {{ totalPages }}</span>
+      <button (click)="changePage(currentPage + 1)" [disabled]="currentPage >= totalPages"
+          class="px-5 py-3 text-white transition bg-blue-500 rounded-lg hover:bg-gray-700 disabled:bg-gray-300 disabled:cursor-not-allowed">Next</button>
+  </div>
+
+  <app-product-form *ngIf="isModalVisible" [product]="selectedProduct" [action]="action" (save)="handleSave($event)"
+      (cancel)="handleCancel()"></app-product-form>
+
+  </div>
+</div>

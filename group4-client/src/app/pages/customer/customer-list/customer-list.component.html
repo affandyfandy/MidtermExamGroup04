@@ -1,0 +1,69 @@
+<div class="min-h-screen">
+    <div class="p-6 bg-white rounded-lg shadow-md">
+      <h1 class="mb-4 text-2xl font-bold text-purple-600">Customer</h1>
+      <p class="mb-6 text-gray-600">All customers data, easily managed at the tip of your hand</p>
+      <button class="px-4 py-2 mb-4 text-white bg-purple-600 rounded hover:bg-purple-700 focus:outline-none">
+        Add customer +
+      </button>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full bg-white">
+          <thead>
+            <tr>
+              <th class="w-1/6 px-4 py-3 text-sm font-semibold text-left text-purple-600 uppercase">
+                CUSTOMER ID <input type="text" placeholder="Search" class="p-1 ml-2 border rounded" />
+              </th>
+              <th class="w-1/6 px-4 py-3 text-sm font-semibold text-left text-purple-600 uppercase">
+                FIRST NAME <input type="text" placeholder="Search" class="p-1 ml-2 border rounded" />
+              </th>
+              <th class="w-1/6 px-4 py-3 text-sm font-semibold text-left text-purple-600 uppercase">
+                LAST NAME <input type="text" placeholder="Search" class="p-1 ml-2 border rounded" />
+              </th>
+              <th class="w-1/6 px-4 py-3 text-sm font-semibold text-left text-purple-600 uppercase">
+                PHONE <input type="text" placeholder="Search" class="p-1 ml-2 border rounded" />
+              </th>
+              <th class="w-1/6 px-4 py-3 text-sm font-semibold text-left text-purple-600 uppercase">
+                ACTIVATE
+              </th>
+              <th class="w-1/6 px-4 py-3 text-sm font-semibold text-left text-purple-600 uppercase">
+                ACTION
+              </th>
+            </tr>
+          </thead>
+          <tbody class="text-gray-700">
+            <tr *ngFor="let customer of customers" class="bg-gray-100 hover:bg-gray-200">
+              <td class="w-1/6 px-4 py-3 text-left">{{ customer.customerId }}</td>
+              <td class="w-1/6 px-4 py-3 text-left">{{ customer.firstName }}</td>
+              <td class="w-1/6 px-4 py-3 text-left">{{ customer.lastName }}</td>
+              <td class="w-1/6 px-4 py-3 text-left">{{ customer.phone }}</td>
+              <td class="w-1/6 px-4 py-3 text-left">
+                <label class="switch">
+                  <input type="checkbox" [(ngModel)]="customer.active" (change)="customer.active ? activateCustomer(customer) : deactivateCustomer(customer)">
+                  <span class="slider round"></span>
+                </label>
+              </td>
+              <td class="w-1/6 px-4 py-3 text-left">
+                <button class="px-2 py-1 mr-2 text-white bg-purple-600 rounded hover:bg-purple-700 focus:outline-none" (click)="editCustomer(customer)">
+                  Edit
+                </button>
+                <button class="px-2 py-1 text-white bg-red-600 rounded hover:bg-red-700 focus:outline-none" (click)="deleteCustomer(customer)">
+                  Delete
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="flex items-center justify-between mt-4">
+        <span class="text-sm text-gray-600">Showing {{ pageSize }} of {{ totalItems }}</span>
+        <div class="flex">
+          <button *ngFor="let page of totalPages" (click)="onPageChange(page)"
+            class="px-2 py-1 text-sm bg-gray-300 rounded hover:bg-gray-400" [class.bg-purple-600]="currentPage === page" [class.text-white]="currentPage === page">
+            {{ page }}
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
