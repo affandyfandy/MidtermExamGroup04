@@ -1,0 +1,32 @@
+<div [ngClass]="{'w-64': !isCollapsed, 'w-20': isCollapsed}" class="flex flex-col h-screen duration-300 bg-white shadow-md transition-width">
+  <!-- Logo and Toggle Button -->
+  <div class="flex items-center justify-between px-4 py-4">
+    <div class="flex items-center">
+      <img src="../../../../assets/images/logo3.png" alt="Logo" class="w-10 h-10" />
+      <span *ngIf="!isCollapsed" class="ml-3 text-xl font-semibold text-gray-700">Your Brand</span>
+    </div>
+    <button (click)="toggleCollapse()" class="ml-auto text-gray-600 focus:outline-none">
+      <span class="material-icons">
+        {{ isCollapsed ? 'chevron_right' : 'chevron_left' }}
+      </span>
+    </button>
+  </div>
+
+  <!-- Navigation Menu -->
+  <nav class="mt-6">
+    <ul>
+      <li class="flex items-center p-3 hover:bg-gray-100" [routerLink]="['/product']" routerLinkActive="font-bold active">
+        <span class="material-icons">inventory_2</span>
+        <span class="ml-2 text-gray-700" *ngIf="!isCollapsed">Product</span>
+      </li>
+      <li class="flex items-center p-3 hover:bg-gray-100" [routerLink]="['/invoice']" routerLinkActive="font-bold active">
+        <span class="material-icons">receipt_long</span>
+        <span class="ml-2 text-gray-700" *ngIf="!isCollapsed">Invoice</span>
+      </li>
+      <li class="flex items-center p-3 hover:bg-gray-100" [routerLink]="['/customer']" routerLinkActive="font-bold active">
+        <span class="material-icons">groups</span>
+        <span class="ml-2 text-gray-700" *ngIf="!isCollapsed">Customer</span>
+      </li>
+    </ul>
+  </nav>
+</div>

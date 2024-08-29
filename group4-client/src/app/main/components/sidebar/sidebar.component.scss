@@ -1,0 +1,40 @@
+.h-screen {
+  height: 100vh;
+}
+
+nav ul li {
+  cursor: pointer;
+}
+
+.material-icons {
+  font-size: 24px;
+  color: #6b7280;
+}
+
+ul li.active {
+  background-color: #f3f4f6;
+}
+
+.transition-width {
+  transition: width 0.3s ease;
+}
+
+button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  outline: none;
+}
+
+button:hover {
+  background-color: #e5e7eb;
+}
+
+button:focus {
+  background-color: #d1d5db;
+}
+
+.active {
+  background-color: #e2e8f0;
+  color: #1a202c; 
+}
