@@ -1,74 +1,67 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, ElementRef, OnInit, Renderer2} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
-import {first} from 'rxjs/operators';
-import {ActivatedRoute, Router} from '@angular/router';
+import {Router} from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-login',
   standalone: true,
   imports: [
-    ReactiveFormsModule,
+    CommonModule,
+    ReactiveFormsModule
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
 export class LoginComponent implements OnInit {
 
-  public form: FormGroup = this.fb.group({});  // {1}
-  private formSubmitAttempt: boolean = false; // {2}
-
-  returnUrl: string;
+  public loginForm!: FormGroup
+  public errorMessage = ''
 
   constructor(
-    private fb: FormBuilder,
-    private route: ActivatedRoute, // {3}
+    private formBuilder: FormBuilder,
+    private authService: AuthService,
     private router: Router,
-    private authService: AuthService // {4}
-  ) {
-    // redirect to home if already logged in
-    // if (this.authService.currentUserValue) {
-    //   this.router.navigate(['/']);
-    // }
+    private renderer: Renderer2,
+    private el: ElementRef) {}
 
-    this.returnUrl = '/product';
-  }
-
-  ngOnInit() {
-    this.form = this.fb.group({     // {5}
-      userName: ['', Validators.required],
-      password: ['', Validators.required]
-    });
-    // get return url from route parameters or default to '/'
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/product';
-  }
-
-  // isFieldInvalid(field: string) { // {6}
-  //   return (
-  //     (!this.form.get(field).valid && this.form.get(field).touched) ||
-  //     (this.form.get(field).untouched && this.formSubmitAttempt)
-  //   );
-  // }
-
-  onSubmit() {
-    if (this.form.valid) {
-      let username = this.form.get('userName');
-      let password = this.form.get('password');
-      if(username != null && password != null){
-        this.authService.login(username.value, password.value)
-        .pipe(first())
-        .subscribe(
-          data => {
-            this.router.navigate([this.returnUrl]);
-          },
-          error => {
-            // this.error = error;
-            // this.loading = false;
-          });
-      }
-
+    ngOnInit(): void {
+      this.loginForm = this.formBuilder.group({
+        email: ['', [Validators.required, Validators.email]],
+        password: ['', Validators.required]
+      })
     }
-    this.formSubmitAttempt = true;             // {8}
+
+  /**
+   * Handles client login
+   * @returns
+   */
+  handleLogin() {
+    if (!this.loginForm.valid) {
+      return;
+    }
+
+    this.authService.login(this.loginForm.value).subscribe({
+      next: (v) => {
+        this.router.navigate(['product'])
+      },
+      error: (e) => {
+        this.errorMessage = (e.error.message ?
+          e.error.message : 'Server Error: Please run the server...')
+        this.showToast()
+        setTimeout(() => this.hideToast(), 5000);
+      }
+    });
+
+  }
+
+  private showToast() {
+    this.renderer.addClass(this.el.nativeElement.querySelector('#errorToast'), 'show');
+  }
+
+  private hideToast() {
+    this.renderer.removeClass(this.el.nativeElement.querySelector('#errorToast'), 'show');
   }
 
 }

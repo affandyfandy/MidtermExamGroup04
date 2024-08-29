@@ -4,10 +4,10 @@ export interface RouteLink {
 }
 
 export const RouterConfig = {
-  HOME: {path: '', link: '/', title: 'Home', data: {header: true}},
-  LOGIN: {path: 'login', link: '/login', data: {header: false}},
-  CUSTOMER: {path: 'customer', link: '/customer', title: 'Customer', data: {header: true}},
-  PRODUCT: {path: 'product', link: '/product', title: 'Product', data: {header: true}},
-  INVOICE: {path: 'invoice', link: '/invoice', title: 'Invoice', data: {header: true}},
-  NOT_FOUND: {path: '**', link: null, title: 'Page Not Found', data: {header: true}}
+  HOME: {path: '', link: '/', redirectTo: 'login'},
+  LOGIN: {path: 'login', link: '/login'},
+  CUSTOMER: {path: 'customer', link: '/customer', title: 'Customer'},
+  PRODUCT: {path: 'product', link: '/product', title: 'Product'},
+  INVOICE: {path: 'invoice', link: '/invoice', title: 'Invoice'},
+  NOT_FOUND: { path: '**', redirectTo: 'login' }
 };

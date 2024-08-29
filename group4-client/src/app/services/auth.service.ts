@@ -1,48 +1,38 @@
 import { Injectable } from "@angular/core";
 import { AppConstants } from "../config/app.constants";
-import { HttpClient, HttpHeaders } from "@angular/common/http";
-import { BehaviorSubject, map, Observable } from "rxjs";
-import { Admin } from "../models/admin.model";
-import { AdminResponse } from "../models/admin-response";
+import { HttpClient } from "@angular/common/http";
+import { Observable, tap } from "rxjs";
+import { User } from "../models/user.model";
 
-const baseUrl = AppConstants.BASE_API_URL + '/login';
+const API_URL = AppConstants.ADMIN_API_URL
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private currentUserSubject: BehaviorSubject<Admin>;
-  public currentUser: Observable<Admin>;
+  constructor(private http: HttpClient) {}
 
-  constructor(private http: HttpClient) {
-    console.log(localStorage.getItem('currentUser'));
-    const item = localStorage.getItem('currentUser');
-    this.currentUserSubject = new BehaviorSubject(item ? JSON.parse(item) : null);
-    this.currentUser = this.currentUserSubject.asObservable();
+  /**
+   * Handles Login Auth
+   * @param loginRequest LoginRequest holding credentials
+   * @returns Post Observable
+   */
+  login(loginRequest: User): Observable<any> {
+    return this.http.post<any>(`${API_URL}/login`, loginRequest ).pipe(
+      tap((res) => {
+        localStorage.setItem(AppConstants.LOCALSTORAGE_LOGIN_ACCESS_TOKEN, res.accessToken)})
+    )
   }
 
-  public get currentUserValue(): Admin {
-    return this.currentUserSubject.value;
+  /**
+   * Checks if there is an user logged in
+   * @returns Whether login present
+   */
+  isLoggedIn() {
+    if (typeof window !== 'undefined') {
+      return !!localStorage.getItem(AppConstants.LOCALSTORAGE_LOGIN_ACCESS_TOKEN);
+    }
+    return false;
   }
-
-  login(username: string, password: string) {
-    const httpOptions = {headers: new HttpHeaders({'Content-Type': 'application/json'})};
-    const formData: FormData = new FormData();
-    formData.append('username', username);
-    formData.append('password', password);
-    return this.http.get<AdminResponse>(baseUrl)
-    .pipe(map(adminResponse => {
-      localStorage.setItem('currentUser', JSON.stringify(adminResponse.data));
-      this.currentUserSubject.next(adminResponse.data);
-      return adminResponse.data;
-    }));
-  }
-
-  logout() {
-    // remove user from local storage to log user out
-    localStorage.removeItem('currentUser');
-    // this.currentUserSubject.next(null);
-  }
-
 
 }
