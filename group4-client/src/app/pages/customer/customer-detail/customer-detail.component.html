@@ -1,1 +1,36 @@
-<p>customer-detail works!</p>
+<div class="modal" *ngIf="customer || isAdding">
+    <div class="modal-content">
+      <h2 class="text-xl font-bold text-[#9E16B6] mb-4">
+        {{ isDetailMode ? 'Customer Details' : 'Add Customer' }}
+      </h2>
+      
+      <form *ngIf="!isDetailMode" (ngSubmit)="saveCustomer()">
+        <label for="firstName" class="block mb-2">First Name</label>
+        <input type="text" id="firstName" [(ngModel)]="newCustomer.firstName" name="firstName" class="w-full p-2 mb-4 border border-gray-300 rounded" required>
+  
+        <label for="lastName" class="block mb-2">Last Name</label>
+        <input type="text" id="lastName" [(ngModel)]="newCustomer.lastName" name="lastName" class="w-full p-2 mb-4 border border-gray-300 rounded" required>
+  
+        <label for="phone" class="block mb-2">Phone</label>
+        <input type="text" id="phone" [(ngModel)]="newCustomer.phone" name="phone" class="w-full p-2 mb-4 border border-gray-300 rounded" required>
+  
+        <div class="flex justify-between buttons">
+            <button type="button" (click)="closeModal()" class="flex-1 px-4 py-2 mr-2 bg-gray-200 rounded hover:bg-gray-300">No, cancel</button>
+            <button type="submit" class="flex-1 px-4 py-2 bg-[#9E16B6] hover:bg-[#8A0CA1] text-white rounded ml-2">Yes, confirm</button>
+          </div>
+      </form>
+  
+      <div *ngIf="isDetailMode">
+        <p><strong>Customer ID:</strong> {{ customer?.customerId }}</p>
+        <p><strong>First Name:</strong> {{ customer?.firstName }}</p>
+        <p><strong>Last Name:</strong> {{ customer?.lastName }}</p>
+        <p><strong>Phone:</strong> {{ customer?.phone }}</p>
+        <p><strong>Status:</strong> {{ customer?.active ? 'Active' : 'Inactive' }}</p>
+  
+        <div class="flex justify-end mt-4">
+          <button type="button" (click)="closeModal()" class="px-4 py-2 bg-[#9E16B6] rounded hover:bg-[#8A0CA1]">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
