@@ -13,7 +13,7 @@
   </div>
 
   <!-- Navigation Menu -->
-  <nav class="mt-6 flex-1 overflow-y-auto">
+  <nav class="flex-1 mt-6 overflow-y-auto">
     <ul>
       <li class="flex items-center p-3 hover:bg-gray-100" [routerLink]="['/product']" routerLinkActive="font-bold active">
         <span class="material-icons">inventory_2</span>
@@ -29,4 +29,9 @@
       </li>
     </ul>
   </nav>
+
+  <!-- Footer -->
+  <div class="px-4 py-4">
+    <span class="text-gray-600" *ngIf="!isCollapsed">© 2024 POS App</span>
+  </div>
 </div>

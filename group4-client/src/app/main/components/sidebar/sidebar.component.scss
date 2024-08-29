@@ -2,6 +2,22 @@
   height: 100vh;
 }
 
+.flex {
+  display: flex;
+}
+
+.flex-grow {
+  flex-grow: 1;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.overflow-y-auto {
+  overflow-y: auto;
+}
+
 nav ul li {
   cursor: pointer;
 }

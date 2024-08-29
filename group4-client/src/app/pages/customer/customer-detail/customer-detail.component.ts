@@ -12,7 +12,7 @@ import { Customer } from '../../../models/customer.model';
 })
 export class CustomerDetailComponent {
   @Input() customer: Customer | null = null;
-  @Input() isDetailMode: boolean = false; // Determine if the modal is for viewing details or adding a new customer
+  @Input() isDetailMode: boolean = false;
   @Output() customerAdded = new EventEmitter<Customer>();
   @Output() close = new EventEmitter<void>();
 

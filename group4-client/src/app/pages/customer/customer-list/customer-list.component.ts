@@ -17,24 +17,24 @@ export class CustomerListComponent implements OnInit {
   currentPage: number = 1;
   pageSize: number = 10;
   totalPages: number[] = [];
-  showModal: boolean = false;  // Modal visibility flag
-  isDetailMode: boolean = false;  // Flag to distinguish between detail and add modes
-  newCustomer: Customer = { customerId: '', firstName: '', lastName: '', phone: '', active: true };  // Object to store new customer data
-  selectedCustomer: Customer | null = null;  // Object to store the selected customer for detail view
+  showModal: boolean = false; 
+  isDetailMode: boolean = false;  
+  newCustomer: Customer = { customerId: '', firstName: '', lastName: '', phone: '', active: true }; 
+  selectedCustomer: Customer | null = null;  
 
-  sortField: keyof Customer | 'index' = 'index';  // Field used for sorting
-  sortDirection: string = 'asc'; // Sorting direction: ascending or descending
+  sortField: keyof Customer | 'index' = 'index';  
+  sortDirection: string = 'asc'; 
   searchTerm: string = '';
 
   constructor(private customerService: CustomerService) {}
 
   ngOnInit(): void {
-    this.loadCustomers();  // Load customers when the component initializes
+    this.loadCustomers();  
   }
 
   loadCustomers(): void {
     this.customerService.getCustomers(this.currentPage - 1, this.pageSize).subscribe((data) => {
-      this.customers = this.sortDataArray(data.content);  // Sort customers after loading
+      this.customers = this.sortDataArray(data.content);  
       this.totalItems = data.totalElements;
       this.totalPages = Array(Math.ceil(this.totalItems / this.pageSize)).fill(0).map((x, i) => i + 1);
     });
@@ -48,7 +48,7 @@ export class CustomerListComponent implements OnInit {
       this.sortField = field;
       this.sortDirection = 'asc';
     }
-    this.loadCustomers();  // Reload customers after changing sort criteria
+    this.loadCustomers(); 
   }
 
   sortDataArray(data: Customer[]): Customer[] {
@@ -67,13 +67,11 @@ export class CustomerListComponent implements OnInit {
     });
   }
 
-  // Open the modal for adding a new customer
   openAddCustomerModal(): void {
     this.isDetailMode = false;
     this.showModal = true;
   }
 
-  // Close the modal
   closeAddCustomerModal(): void {
     this.showModal = false;
     this.newCustomer = { customerId: '', firstName: '', lastName: '', phone: '', active: true };
@@ -114,31 +112,26 @@ export class CustomerListComponent implements OnInit {
     }
   }
 
-  // Open the modal for viewing customer details or editing customer
   openCustomerDetailModal(customer: Customer, isEditMode: boolean = false): void {
     this.isDetailMode = !isEditMode;
     this.selectedCustomer = { ...customer };
     this.showModal = true;
   }
 
-  // Save the new or edited customer
   saveCustomer(): void {
     if (this.selectedCustomer) {
-        // Editing an existing customer
         this.customerService.updateCustomer(this.selectedCustomer.customerId, this.selectedCustomer).subscribe(() => {
             this.loadCustomers();
             this.closeAddCustomerModal();
         });
     } else {
-        // Adding a new customer
         this.customerService.createCustomer(this.newCustomer).subscribe(() => {
             this.loadCustomers();
             this.closeAddCustomerModal();
         });
     }
   }
-
-  // Edit customer button handler
+  
   editCustomer(customer: Customer): void {
     this.openCustomerDetailModal(customer, true);
   }
