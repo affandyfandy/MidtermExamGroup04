@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { ProductService } from '../../../services/product.service';
 import { FormsModule } from '@angular/forms';
 import { Product } from '../../../models/product.model';
-import { ProductFormComponent } from '../../product-form/product-form.component';
+import { ProductFormComponent } from '../product-form/product-form.component';
 import { FaIconLibrary, FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faPlus, faArrowUp, faArrowDown, faSort } from '@fortawesome/free-solid-svg-icons';
 @Component({
