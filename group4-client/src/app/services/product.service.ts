@@ -27,9 +27,10 @@ export class ProductService {
     sortOrder: string = 'asc'
   ): Observable<ProductResponse> {
     const params = new HttpParams()
-      .set('page', pageNo.toString())
-      .set('size', pageSize.toString())
-      .set('sort', `${sortBy},${sortOrder}`);
+      .set('pageNo', pageNo.toString())
+      .set('pageSize', pageSize.toString())
+      .set('sortOrder', `${sortOrder}`)
+      .set('sortBy', `${sortBy}`);
 
     return this.http.get<ProductResponse>(baseUrl, { params });
   }

@@ -16,7 +16,7 @@
   </div>
 
   <table *ngIf="!isLoading && !error" class="w-full mb-5 bg-white rounded-lg shadow-lg table-auto">
-      <thead class="text-white bg-blue-500">
+      <thead class="text-white bg-violet-500">
           <tr>
               <th class="p-3 text-left cursor-pointer hover:bg-blue-600">
                   No
@@ -53,7 +53,7 @@
               <td class="flex gap-3 p-3">
                   <button class="px-4 py-2 text-white transition bg-green-500 rounded-lg hover:bg-green-700"
                       (click)="openEditProductModal(item)">Edit</button>
-                  <button class="px-4 py-2 text-white transition bg-red-500 rounded-lg hover:bg-red-700"
+                  <button class="px-4 py-2 text-white transition bg-blue-500 rounded-lg hover:bg-red-700"
                       (click)="detailProduct(item)">Detail</button>
               </td>
           </tr>
@@ -65,9 +65,9 @@
           class="px-5 py-3 text-white transition bg-blue-500 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed">Previous</button>
       <span class="mx-5 text-lg">Page {{ currentPage }} of {{ totalPages }}</span>
       <button (click)="changePage(currentPage + 1)" [disabled]="currentPage >= totalPages"
-          class="px-5 py-3 text-white transition bg-blue-500 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed">Previous</button>
+          class="px-5 py-3 text-white transition bg-blue-500 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed">Next</button>
   </div>
 
-  <app-product-form *ngIf="isModalVisible" [product]="selectedProduct" (save)="handleSave($event)"
+  <app-product-form *ngIf="isModalVisible" [product]="selectedProduct" [action]="action" (save)="handleSave($event)"
       (cancel)="handleCancel()"></app-product-form>
 </div>

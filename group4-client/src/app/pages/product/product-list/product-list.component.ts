@@ -31,6 +31,7 @@ export class ProductListComponent implements OnInit{
 
   selectedProduct: Product | null = null;
   isModalVisible: boolean = false;
+  action: string = "add";
 
   // faArrowUp = faArrowUp;
   // faArrowDown = faArrowDown;
@@ -45,6 +46,7 @@ export class ProductListComponent implements OnInit{
   }
 
   loadProducts(page: number): void {
+    console.log("this current page " + page);
     this.isLoading = true;
     this.error = null;
     this.productService.getAllProducts(page, this.pageSize, this.sortColumn, this.sortDirection).subscribe({
@@ -55,7 +57,6 @@ export class ProductListComponent implements OnInit{
         this.totalPages = response.totalPages;
         this.currentPage = page;
         this.isLoading = false;
-        console.log("total pages " + this.totalPages);
       },
       error: (err) => {
         this.error = 'Failed to load products. Please try again later.';
@@ -84,25 +85,47 @@ export class ProductListComponent implements OnInit{
   openAddProductModal(): void {
     this.selectedProduct = null;
     this.isModalVisible = true;
+    this.action = "add";
     console.log("add product modal");
   }
 
   openEditProductModal(product: Product): void {
-    // Implement your modal logic here
+    this.selectedProduct = product;
+    this.isModalVisible = true;
+    this.action = "edit";
+    console.log("edit product modal");
   }
 
   detailProduct(product: Product): void {
-    // Implement your detail view logic here
+    this.selectedProduct = product;
+    this.isModalVisible = true;
+    this.action = "detail";
+    console.log("detail product modal");
   }
 
+
   toggleItemStatus(product: Product): void {
-    product.active = !product.active;
-    this.productService.updateProduct(product).subscribe({
-      next: () => this.loadProducts(this.currentPage),
-      error: err => {
-        console.error('Failed to update product status', err);
-      }
-    });
+    if (product.active) {
+      this.productService.deactivateProduct(product.productId).subscribe(
+        (updatedProduct: Product) => {
+          console.log('Product deactivated successfully:', updatedProduct);
+          product.active = false;
+        },
+        (error: any) => {
+          console.error('Error deactivating product:', error);
+        }
+      );
+    } else {
+      this.productService.activateProduct(product.productId).subscribe(
+        (updatedProduct: Product) => {
+          console.log('Product activated successfully:', updatedProduct);
+          product.active = true;
+        },
+        (error: any) => {
+          console.error('Error activating product:', error);
+        }
+      );
+    }
   }
 
   handleCancel(): void {

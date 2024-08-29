@@ -14,6 +14,7 @@ import { Product } from '../../../models/product.model';
 })
 export class ProductFormComponent implements OnInit{
   @Input() product: Product | null = null;
+  @Input() action?: string;
   @Output() save = new EventEmitter<Product>();
   @Output() cancel = new EventEmitter<void>();
 
@@ -44,7 +45,7 @@ export class ProductFormComponent implements OnInit{
       if (this.product) {
         productData.productId = this.product.productId;
       }
-      
+
       this.save.emit(productData);
       this.onClose();
     }
