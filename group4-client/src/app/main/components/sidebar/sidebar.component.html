@@ -1,9 +1,10 @@
-<div [ngClass]="{'w-64': !isCollapsed, 'w-20': isCollapsed}" class="flex flex-col h-screen bg-white shadow-md transition-width">
+<div [ngClass]="{'w-64': !isCollapsed, 'w-24': isCollapsed}" class="flex flex-col h-full bg-white shadow-md transition-width">
   <!-- Logo and Toggle Button -->
   <div class="flex items-center justify-between px-4 py-4">
     <div class="flex items-center">
-      <img src="../../../../assets/images/logo3.png" alt="Logo" class="w-10 h-10" />
-      <span *ngIf="!isCollapsed" class="ml-3 text-xl font-semibold text-gray-700">POS App</span>
+      <!-- Show image only when isCollapsed is false -->
+      <img *ngIf="!isCollapsed" src="../../../../assets/images/logo3.png" alt="Logo" class="ml-2 w-10 h-10" />
+      <span *ngIf="!isCollapsed" class="ml-3 text-l font-semibold text-gray-700">POS App</span>
     </div>
     <button (click)="toggleCollapse()" class="ml-auto text-gray-600 focus:outline-none">
       <span class="material-icons">
@@ -15,17 +16,17 @@
   <!-- Navigation Menu -->
   <nav class="mt-6 flex-1 overflow-y-auto">
     <ul>
-      <li class="flex items-center p-3 hover:bg-gray-100" [routerLink]="['/product']" routerLinkActive="font-bold active">
+      <li class="flex items-center ml-5 p-3 hover:bg-gray-100" [routerLink]="['/product']" routerLinkActive="font-bold active">
         <span class="material-icons">inventory_2</span>
-        <span class="ml-2 text-gray-700" *ngIf="!isCollapsed">Product</span>
+        <span class="ml-5 text-gray-700" *ngIf="!isCollapsed">Product</span>
       </li>
-      <li class="flex items-center p-3 hover:bg-gray-100" [routerLink]="['/invoice']" routerLinkActive="font-bold active">
+      <li class="flex items-center ml-5 p-3 hover:bg-gray-100" [routerLink]="['/invoice']" routerLinkActive="font-bold active">
         <span class="material-icons">receipt_long</span>
-        <span class="ml-2 text-gray-700" *ngIf="!isCollapsed">Invoice</span>
+        <span class="ml-5 text-gray-700" *ngIf="!isCollapsed">Invoice</span>
       </li>
-      <li class="flex items-center p-3 hover:bg-gray-100" [routerLink]="['/customer']" routerLinkActive="font-bold active">
+      <li class="flex items-center ml-5 p-3 hover:bg-gray-100" [routerLink]="['/customer']" routerLinkActive="font-bold active">
         <span class="material-icons">groups</span>
-        <span class="ml-2 text-gray-700" *ngIf="!isCollapsed">Customer</span>
+        <span class="ml-5 text-gray-700" *ngIf="!isCollapsed">Customer</span>
       </li>
     </ul>
   </nav>

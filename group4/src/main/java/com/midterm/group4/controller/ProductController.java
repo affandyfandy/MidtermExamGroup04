@@ -79,7 +79,7 @@ public class ProductController {
             @Parameter(description = "Product name") @RequestParam(required = false) String name,
             @Parameter(description = "Product status") @RequestParam(required = false) String status
     ) {
-        Page<Product> pageProduct = productService.findAllByQuery(pageNo, pageSize, sortOrder, sortBy, name, status);
+        Page<Product> pageProduct = productService.findAllByQuery(pageNo, pageSize, sortBy, sortOrder, name, status);
         List<ReadProductDTO> listProductDTOs = pageProduct.getContent().stream()
                 .map(product -> productMapper.toReadProductDto(product))
                 .collect(Collectors.toList());

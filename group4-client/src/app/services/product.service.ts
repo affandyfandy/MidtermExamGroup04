@@ -80,4 +80,39 @@ export class ProductService {
     return this.http.post<Product>(baseUrl, product);
   }
 
+
+  /**
+   * Searches for products based on the provided query parameters.
+   * @param pageNo - The page number to retrieve.
+   * @param pageSize - The number of items per page.
+   * @param sortOrder - The sort order (e.g., 'asc' or 'desc').
+   * @param sortBy - The field to sort by.
+   * @param name - The name of the product to search for.
+   * @param status - The status of the product to filter by.
+   * @returns An Observable containing the search results.
+   */
+  searchProducts(
+    pageNo: number = 0,
+    pageSize: number = 10,
+    sortOrder: string = 'asc',
+    sortBy: string = 'name',
+    name?: string,
+    status?: string
+  ): Observable<ProductResponse> {
+    let params = new HttpParams()
+      .set('pageNo', pageNo.toString())
+      .set('pageSize', pageSize.toString())
+      .set('sortOrder', sortOrder)
+      .set('sortBy', sortBy);
+
+    if (name) {
+      params = params.set('name', name);
+    }
+    if (status) {
+      params = params.set('status', status);
+    }
+
+    return this.http.get<ProductResponse>(`${baseUrl}/search`, { params });
+  }
+
 }

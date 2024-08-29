@@ -31,7 +31,11 @@ export class ProductListComponent implements OnInit{
 
   selectedProduct: Product | null = null;
   isModalVisible: boolean = false;
-  action: string = "add";
+  action: string = 'add';
+
+  searchName: string = '';
+  searchPrice: string = '';
+  searchStatus: string = '';
 
   // faArrowUp = faArrowUp;
   // faArrowDown = faArrowDown;
@@ -145,5 +149,22 @@ export class ProductListComponent implements OnInit{
       });
     }
     this.isModalVisible = false;
+  }
+
+  applyFilter(): void {
+    this.productService.searchProducts(this.currentPage, this.pageSize, this.sortColumn, this.sortDirection, this.searchName, this.searchStatus).subscribe({
+      next: (response: ProductResponse) => {
+        this.products = response.content;
+        this.filteredProduct = this.products;
+        this.totalElements = response.totalElements;
+        this.totalPages = response.totalPages;
+        this.isLoading = false;
+      },
+      error: (err) => {
+        this.error = 'Failed to load products. Please try again later.';
+        console.error(err);
+        this.isLoading = false;
+      }
+    });
   }
 }
