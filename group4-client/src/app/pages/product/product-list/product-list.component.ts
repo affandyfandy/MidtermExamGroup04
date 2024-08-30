@@ -6,9 +6,7 @@ import { Product, ProductResponse } from '../../../models/product.model';
 import { ProductFormComponent } from '../product-form/product-form.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faArrowUp, faArrowDown, faSort } from '@fortawesome/free-solid-svg-icons';
-import { HttpEvent, HttpEventType } from '@angular/common/http';
 import { ToastService } from '../../../services/toast.service';
-import { ToastComponent } from '../../../main/components/toast/toast.component';
 @Component({
   selector: 'app-product-list',
   standalone: true,

@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { AppConstants } from "../config/app.constants";
-import { HttpClient, HttpEvent, HttpHeaders, HttpRequest, HttpParams } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { Product, ProductResponse } from "../models/product.model";
 

@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
-import { ProductListComponent } from '../../../pages/product/product-list/product-list.component';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { filter } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CustomerService } from '../../../services/customer.service';
 import { Customer } from '../../../models/customer.model';
+import { ToastService } from '../../../services/toast.service';
 
 @Component({
   selector: 'app-customer-list',
@@ -22,11 +23,14 @@ export class CustomerListComponent implements OnInit {
   newCustomer: Customer = { customerId: '', firstName: '', lastName: '', phone: '', active: true };  // Object to store new customer data
   selectedCustomer: Customer | null = null;  // Object to store the selected customer for detail view
 
-  sortField: keyof Customer | 'index' = 'index';  // Field used for sorting
-  sortDirection: string = 'asc'; // Sorting direction: ascending or descending
+  sortField: keyof Customer | 'index' = 'index';
+  sortDirection: string = 'asc';
   searchTerm: string = '';
 
-  constructor(private customerService: CustomerService) {}
+  constructor(
+    private customerService: CustomerService,
+    private toastService: ToastService
+  ) {}
 
   ngOnInit(): void {
     this.loadCustomers();  // Load customers when the component initializes
@@ -34,14 +38,31 @@ export class CustomerListComponent implements OnInit {
 
   loadCustomers(): void {
     this.customerService.getCustomers(this.currentPage - 1, this.pageSize).subscribe((data) => {
-      this.customers = this.sortDataArray(data.content);  // Sort customers after loading
+      this.customers = this.sortDataArray(data.content);
       this.totalItems = data.totalElements;
-      this.totalPages = Array(Math.ceil(this.totalItems / this.pageSize)).fill(0).map((x, i) => i + 1);
+      this.totalPages = Array.from({ length: Math.ceil(this.totalItems / this.pageSize) }, (_, i) => i + 1);
     });
   }
 
+  // Handle changes in page size
+  onPageSizeChange(event: Event): void {
+    this.pageSize = +(event.target as HTMLSelectElement).value;
+    this.currentPage = 1; // Reset to the first page
+    this.loadCustomers();
+  }
+
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.loadCustomers();
+  }
+
+  // Custom method to replicate Math.min
+  minValue(a: number, b: number): number {
+    return a < b ? a : b;
+  }
+
   // Sorting logic
-  sortData(field: keyof Customer | 'index'): void { 
+  sortData(field: keyof Customer | 'index'): void {
     if (this.sortField === field) {
       this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
     } else {
@@ -56,13 +77,13 @@ export class CustomerListComponent implements OnInit {
       let comparison = 0;
       const fieldA = this.sortField === 'index' ? this.customers.indexOf(a) + 1 : a[this.sortField];
       const fieldB = this.sortField === 'index' ? this.customers.indexOf(b) + 1 : b[this.sortField];
-  
+
       if (typeof fieldA === 'string' && typeof fieldB === 'string') {
         comparison = fieldA.toLowerCase().localeCompare(fieldB.toLowerCase());
       } else {
         comparison = fieldA > fieldB ? 1 : -1;
       }
-  
+
       return this.sortDirection === 'asc' ? comparison : -comparison;
     });
   }
@@ -84,8 +105,10 @@ export class CustomerListComponent implements OnInit {
     if (confirm(`Are you sure you want to delete ${customer.firstName} ${customer.lastName}?`)) {
       this.customerService.deleteCustomer(customer.customerId).subscribe(() => {
         this.loadCustomers();
+        this.toastService.showToast('Customer deleted successfully!', 'success');
       });
     }
+    this.toastService.showToast('Failed delete customer', 'error');
   }
 
   activateCustomer(customer: Customer): void {
@@ -100,17 +123,14 @@ export class CustomerListComponent implements OnInit {
     });
   }
 
-  onPageChange(page: number): void {
-    this.currentPage = page;
-    this.loadCustomers();
-  }
-
   toggleCustomerActivation(customer: Customer): void {
     customer.active = !customer.active;
     if (customer.active) {
       this.customerService.activateCustomer(customer.customerId).subscribe();
+      this.toastService.showToast('Customer activated successfully!', 'success');
     } else {
       this.customerService.deactivateCustomer(customer.customerId).subscribe();
+      this.toastService.showToast('Customer deactivated successfully!', 'success');
     }
   }
 
@@ -127,12 +147,14 @@ export class CustomerListComponent implements OnInit {
         // Editing an existing customer
         this.customerService.updateCustomer(this.selectedCustomer.customerId, this.selectedCustomer).subscribe(() => {
             this.loadCustomers();
+            this.toastService.showToast('Customer updated successfully!', 'success');
             this.closeAddCustomerModal();
         });
     } else {
         // Adding a new customer
         this.customerService.createCustomer(this.newCustomer).subscribe(() => {
             this.loadCustomers();
+            this.toastService.showToast('Customer created successfully!', 'success');
             this.closeAddCustomerModal();
         });
     }
@@ -142,5 +164,5 @@ export class CustomerListComponent implements OnInit {
   editCustomer(customer: Customer): void {
     this.openCustomerDetailModal(customer, true);
   }
-  
+
 }
