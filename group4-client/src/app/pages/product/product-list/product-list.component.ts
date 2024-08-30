@@ -50,12 +50,13 @@ export class ProductListComponent implements OnInit{
   }
 
   loadProducts(page: number): void {
-    console.log("this current page " + page);
     this.isLoading = true;
     this.error = null;
-    this.productService.getAllProducts(page, this.pageSize, this.sortColumn, this.sortDirection).subscribe({
+    this.productService.getAllProducts(page-1, this.pageSize, this.sortColumn, this.sortDirection).subscribe({
       next: (response: ProductResponse) => {
+        console.log("Full response:", response);
         this.products = response.content;
+        console.log("cobaa" + response.content);
         this.filteredProduct = this.products;
         this.totalElements = response.totalElements;
         this.totalPages = response.totalPages;

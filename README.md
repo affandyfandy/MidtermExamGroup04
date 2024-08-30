@@ -223,6 +223,64 @@ MidtermExamGroup04/
 
 ![exported-excel.png](/img/exported-excel.png)
 
+### How To Run the Project
+
+Install packages
+
+```bash
+npm install
+```
+
+Go to JSON-server directory
+
+```bash
+cd group4-client/api
+```
+
+Run JSON-server
+
+```bash
+node server.js
+```
+
+Run spring project
+
+```bash
+cd ../../group4
+mvn clean install
+```
+
+Run Angular server
+
+```bash
+cd ../group4-client
+ng serve
+```
+
+If there is no issue, the active port should be:
+
+- `localhost:4200` for frontend (Angular server)
+- `localhost:8080` for backend (Spring)
+- `localhost:3000` for json-server
+
+### Snapshots
+
+![json-server.png](/img/json-server.png)
+
+![login.png](/img/login.png)
+
+![list-product.png](/img/list-products.png)
+
+![list-customer.png](/img/list-customer.png)
+
+![detail-product.png](/img/detail-product.png)
+
+![add-product.png](/img/add-product.png)
+
+![add-cust.png](/img/add-cust.png)
+
+![detaik-customer.png](/img/detail-customer.png)
+
 ---
 
 *Crafted with <span style="color: #e25555;">&#10084;</span> by Fahira Adindiah and Hamdan Azani*
