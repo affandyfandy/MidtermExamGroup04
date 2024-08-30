@@ -149,12 +149,12 @@ export class ProductListComponent implements OnInit{
       const index = this.products.findIndex(p => p.productId === this.selectedProduct!.productId);
       this.productService.updateProduct(product).subscribe((result) => {
         this.products[index] = result;
-        // this.loadProducts(this.currentPage);
+        this.loadProducts(this.currentPage);
         this.toastService.showToast('Product updated successfully!', 'success');
       });
     } else {
       this.productService.addProduct(product).subscribe(() => {
-        // this.loadProducts(this.currentPage);
+        this.loadProducts(this.currentPage);
         this.toastService.showToast('Product added successfully!', 'success');
       });
     }
