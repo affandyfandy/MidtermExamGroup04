@@ -6,6 +6,7 @@ import { Product, ProductResponse } from '../../../models/product.model';
 import { ProductFormComponent } from '../product-form/product-form.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faArrowUp, faArrowDown, faSort } from '@fortawesome/free-solid-svg-icons';
+import { ToastService } from '../../../services/toast.service';
 @Component({
   selector: 'app-product-list',
   standalone: true,
@@ -37,12 +38,16 @@ export class ProductListComponent implements OnInit{
   searchPrice: string = '';
   searchStatus: string = '';
 
+  selectedFile: File | null = null;
+  message: string = '';
+
   // faArrowUp = faArrowUp;
   // faArrowDown = faArrowDown;
   // faSort = faSort;
 
   constructor(
-    private productService: ProductService
+    private productService: ProductService,
+    private toastService: ToastService
   ){}
 
   ngOnInit(): void {
@@ -56,7 +61,6 @@ export class ProductListComponent implements OnInit{
       next: (response: ProductResponse) => {
         console.log("Full response:", response);
         this.products = response.content;
-        console.log("cobaa" + response.content);
         this.filteredProduct = this.products;
         this.totalElements = response.totalElements;
         this.totalPages = response.totalPages;
@@ -64,9 +68,10 @@ export class ProductListComponent implements OnInit{
         this.isLoading = false;
       },
       error: (err) => {
-        this.error = 'Failed to load products. Please try again later.';
+        this.error = 'Nothing to see..';
         console.error(err);
         this.isLoading = false;
+        this.toastService.showToast('Failed to load products', 'error');
       }
     });
   }
@@ -79,33 +84,31 @@ export class ProductListComponent implements OnInit{
       this.sortDirection = 'asc';
     }
     this.loadProducts(this.currentPage);
+    this.toastService.showToast('Retrieved products', 'success');
   }
 
   changePage(page: number): void {
     this.currentPage = page;
-    console.log("current page " + this.currentPage);
     this.loadProducts(this.currentPage);
+    // this.toastService.showToast('Changed page', 'success');
   }
 
   openAddProductModal(): void {
     this.selectedProduct = null;
     this.isModalVisible = true;
     this.action = "add";
-    console.log("add product modal");
   }
 
   openEditProductModal(product: Product): void {
     this.selectedProduct = product;
     this.isModalVisible = true;
     this.action = "edit";
-    console.log("edit product modal");
   }
 
   detailProduct(product: Product): void {
     this.selectedProduct = product;
     this.isModalVisible = true;
     this.action = "detail";
-    console.log("detail product modal");
   }
 
 
@@ -115,9 +118,11 @@ export class ProductListComponent implements OnInit{
         (updatedProduct: Product) => {
           console.log('Product deactivated successfully:', updatedProduct);
           product.active = false;
+          this.toastService.showToast('Product deactivated successfully!', 'success');
         },
         (error: any) => {
           console.error('Error deactivating product:', error);
+          this.toastService.showToast('Error deactivating product.', 'error');
         }
       );
     } else {
@@ -125,9 +130,11 @@ export class ProductListComponent implements OnInit{
         (updatedProduct: Product) => {
           console.log('Product activated successfully:', updatedProduct);
           product.active = true;
+          this.toastService.showToast('Product activated successfully!', 'success');
         },
         (error: any) => {
           console.error('Error activating product:', error);
+          this.toastService.showToast('Error deactivating product.', 'error');
         }
       );
     }
@@ -142,11 +149,13 @@ export class ProductListComponent implements OnInit{
       const index = this.products.findIndex(p => p.productId === this.selectedProduct!.productId);
       this.productService.updateProduct(product).subscribe((result) => {
         this.products[index] = result;
-        this.loadProducts(this.currentPage);
+        // this.loadProducts(this.currentPage);
+        this.toastService.showToast('Product updated successfully!', 'success');
       });
     } else {
       this.productService.addProduct(product).subscribe(() => {
-        this.loadProducts(this.currentPage);
+        // this.loadProducts(this.currentPage);
+        this.toastService.showToast('Product added successfully!', 'success');
       });
     }
     this.isModalVisible = false;
@@ -160,12 +169,20 @@ export class ProductListComponent implements OnInit{
         this.totalElements = response.totalElements;
         this.totalPages = response.totalPages;
         this.isLoading = false;
+        this.toastService.showToast('Retrieved products', 'success');
       },
       error: (err) => {
-        this.error = 'Failed to load products. Please try again later.';
+        this.error = 'Nothing to see..';
+        this.toastService.showToast('Failed to load products.', 'error');
         console.error(err);
         this.isLoading = false;
       }
     });
+  }
+
+  openImportProductModal(): void {
+    this.selectedProduct = null;
+    this.isModalVisible = true;
+    this.action = "upload";
   }
 }

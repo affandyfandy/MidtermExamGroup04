@@ -1,4 +1,4 @@
-<div class="min-h-screen p-6 bg-gray-100">
+<div class="min-h-screen bg-gray-100">
   <div class="p-6 bg-white rounded-lg shadow-md">
     <div class="flex items-center justify-between mb-6">
       <div>
@@ -6,7 +6,7 @@
         <p class="text-gray-600">All customers data, easily managed at the tip of your hand</p>
       </div>
       <button (click)="openAddCustomerModal()" class="px-4 py-2 text-white bg-[#9E16B6] rounded hover:bg-[#8A0CA1] focus:outline-none">
-        Add Customer +
+        Add Customer
       </button>
     </div>
 
@@ -157,15 +157,15 @@
         </select>
       </div>
     </div>
-    
+
     <!-- Pagination Controls -->
     <div class="flex items-center justify-between mt-4">
       <span class="text-sm text-gray-600">
         Showing {{ (currentPage - 1) * pageSize + 1 }} to {{ minValue(currentPage * pageSize, totalItems) }} of {{ totalItems }}
       </span>
       <div class="flex space-x-2">
-        <button 
-          *ngFor="let page of totalPages" 
+        <button
+          *ngFor="let page of totalPages"
           (click)="onPageChange(page)"
           class="px-3 py-1 text-sm font-semibold rounded hover:bg-purple-700 focus:outline-none"
           [ngClass]="{'bg-[#9E16B6] text-white': currentPage === page, 'bg-gray-300': currentPage !== page}">

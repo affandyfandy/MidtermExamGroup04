@@ -3,6 +3,7 @@ import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/
 import {Router} from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-login',
@@ -20,6 +21,7 @@ export class LoginComponent implements OnInit {
   public errorMessage = ''
 
   constructor(
+    private toastService: ToastService,
     private formBuilder: FormBuilder,
     private authService: AuthService,
     private router: Router,
@@ -45,11 +47,13 @@ export class LoginComponent implements OnInit {
     this.authService.login(this.loginForm.value).subscribe({
       next: (v) => {
         this.router.navigate(['product'])
+        this.toastService.showToast('Logged in successfully!', 'success');
       },
       error: (e) => {
         this.errorMessage = (e.error.message ?
           e.error.message : 'Server Error: Please run the server...')
         this.showToast()
+        this.toastService.showToast('Failed to login', 'error');
         setTimeout(() => this.hideToast(), 5000);
       }
     });

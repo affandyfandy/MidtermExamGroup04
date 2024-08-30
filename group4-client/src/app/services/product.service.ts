@@ -115,4 +115,19 @@ export class ProductService {
     return this.http.get<ProductResponse>(`${baseUrl}/search`, { params });
   }
 
+  /**
+   * Imports products from an Excel file.
+   * @param file - The Excel file to upload.
+   * @returns An observable of the import response.
+   */
+  importProducts(file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http.post<any>(`${baseUrl}/import`, formData, {
+      reportProgress: true,
+      observe: 'events'
+    });
+  }
+
 }

@@ -1,30 +1,52 @@
+<!-- Modal Overlay -->
 <div class="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50" *ngIf="isVisible" (click)="onClose()">
+  <!-- Modal Content -->
   <div class="bg-white p-8 rounded-lg w-full max-w-lg shadow-lg flex flex-col gap-5" (click)="$event.stopPropagation()">
-      <h2 class="text-xl font-semibold text-gray-800">
-          {{ product ? (action === 'edit' ? 'Edit Product' : 'Detail Product') : 'Add Product' }}
-      </h2>
-      <form [formGroup]="productForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
-        <label class="flex flex-col text-gray-700">
-          Name:
-          <input formControlName="name" class="mt-2 p-2 border border-gray-300 rounded focus:border-blue-500 focus:outline-none focus:ring focus:ring-blue-200" [readonly]="action === 'detail' ? true : null"/>
-        </label>
-        <label class="flex flex-col text-gray-700">
-          Price:
-          <input formControlName="price" type="number" class="mt-2 p-2 border border-gray-300 rounded focus:border-blue-500 focus:outline-none focus:ring focus:ring-blue-200" [readonly]="action === 'detail' ? true : null"/>
-        </label>
-        <label class="flex flex-col text-gray-700">
-          Quantity:
-          <input formControlName="quantity" type="number" class="mt-2 p-2 border border-gray-300 rounded focus:border-blue-500 focus:outline-none focus:ring focus:ring-blue-200" [readonly]="action === 'detail' ? true : null"/>
-        </label>
-        <div class="flex justify-end gap-4 mt-4">
-          <ng-container *ngIf="action !== 'detail'">
-            <button type="button" (click)="onClose()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition duration-200">Cancel</button>
-            <button type="submit" class="px-4 py-2 bg-[#9E16B6] text-white rounded hover:bg-[#8A0CA1] transition duration-200">{{ action === 'edit' ? 'Update' : 'Save' }}</button>
-          </ng-container>
-          <ng-container *ngIf="action === 'detail'">
-            <button type="button" (click)="onClose()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition duration-200">Close</button>
-          </ng-container>
-        </div>
-      </form>
+    <h2 class="text-xl font-semibold text-gray-800">
+      {{ product ? (action === 'edit' ? 'Edit Product' : 'Detail Product') : (action === 'upload' ? 'Upload Products' : 'Add Product') }}
+    </h2>
+
+    <!-- Product Form -->
+    <form *ngIf="action !== 'upload'" [formGroup]="productForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
+      <label class="flex flex-col text-gray-700">
+        Name:
+        <input formControlName="name" class="mt-2 p-2 border border-gray-300 rounded focus:border-blue-500 focus:outline-none focus:ring focus:ring-blue-200" [readonly]="action === 'detail' ? true : null"/>
+      </label>
+      <label class="flex flex-col text-gray-700">
+        Price:
+        <input formControlName="price" type="number" class="mt-2 p-2 border border-gray-300 rounded focus:border-blue-500 focus:outline-none focus:ring focus:ring-blue-200" [readonly]="action === 'detail' ? true : null"/>
+      </label>
+      <label class="flex flex-col text-gray-700">
+        Quantity:
+        <input formControlName="quantity" type="number" class="mt-2 p-2 border border-gray-300 rounded focus:border-blue-500 focus:outline-none focus:ring focus:ring-blue-200" [readonly]="action === 'detail' ? true : null"/>
+      </label>
+      <div class="flex justify-end gap-4 mt-4">
+        <ng-container *ngIf="action !== 'detail'">
+          <button type="button" (click)="onClose()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition duration-200">Cancel</button>
+          <button type="submit" class="px-4 py-2 bg-[#9E16B6] text-white rounded hover:bg-[#8A0CA1] transition duration-200">{{ action === 'edit' ? 'Update' : 'Save' }}</button>
+        </ng-container>
+        <ng-container *ngIf="action === 'detail'">
+          <button type="button" (click)="onClose()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition duration-200">Close</button>
+        </ng-container>
+      </div>
+    </form>
+
+    <!-- File Upload Form -->
+    <form *ngIf="action === 'upload'" (ngSubmit)="uploadFile()" class="flex flex-col gap-4">
+      <label class="flex flex-col text-gray-700">
+        Select File:
+        <input type="file" (change)="onFileChange($event)" class="mt-2 p-2 border border-gray-300 rounded focus:border-blue-500 focus:outline-none focus:ring focus:ring-blue-200"/>
+      </label>
+      <div *ngIf="selectedFile" class="mt-2 text-gray-700">
+        Selected file: {{ selectedFile.name }}
+      </div>
+      <div class="flex justify-end gap-4 mt-4">
+        <button type="button" (click)="onClose()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition duration-200">Cancel</button>
+        <button type="submit" class="px-4 py-2 bg-[#9E16B6] text-white rounded hover:bg-[#8A0CA1] transition duration-200">Upload</button>
+      </div>
+      <div *ngIf="message" class="alert mt-4">
+        {{ message }}
+      </div>
+    </form>
   </div>
 </div>
