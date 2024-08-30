@@ -86,7 +86,7 @@ export class ProductFormComponent implements OnInit{
               this.message = `Success: ${event.body}`;
               this.showFileUpload = false;
               this.toastService.showToast('Products imported successfully!', 'success');
-              this.onClose();
+              // this.onClose();
               break;
           }
         },
