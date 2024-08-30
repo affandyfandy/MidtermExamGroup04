@@ -22,8 +22,8 @@ export class CustomerListComponent implements OnInit {
   newCustomer: Customer = { customerId: '', firstName: '', lastName: '', phone: '', active: true };  // Object to store new customer data
   selectedCustomer: Customer | null = null;  // Object to store the selected customer for detail view
 
-  sortField: keyof Customer | 'index' = 'index';  // Field used for sorting
-  sortDirection: string = 'asc'; // Sorting direction: ascending or descending
+  sortField: keyof Customer | 'index' = 'index';
+  sortDirection: string = 'asc';
   searchTerm: string = '';
 
   constructor(private customerService: CustomerService) {}
@@ -34,10 +34,27 @@ export class CustomerListComponent implements OnInit {
 
   loadCustomers(): void {
     this.customerService.getCustomers(this.currentPage - 1, this.pageSize).subscribe((data) => {
-      this.customers = this.sortDataArray(data.content);  // Sort customers after loading
+      this.customers = this.sortDataArray(data.content);
       this.totalItems = data.totalElements;
-      this.totalPages = Array(Math.ceil(this.totalItems / this.pageSize)).fill(0).map((x, i) => i + 1);
+      this.totalPages = Array.from({ length: Math.ceil(this.totalItems / this.pageSize) }, (_, i) => i + 1);
     });
+  }
+
+  // Handle changes in page size
+  onPageSizeChange(event: Event): void {
+    this.pageSize = +(event.target as HTMLSelectElement).value;
+    this.currentPage = 1; // Reset to the first page
+    this.loadCustomers();
+  }
+
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.loadCustomers();
+  }
+
+  // Custom method to replicate Math.min
+  minValue(a: number, b: number): number {
+    return a < b ? a : b;
   }
 
   // Sorting logic
@@ -98,11 +115,6 @@ export class CustomerListComponent implements OnInit {
     this.customerService.deactivateCustomer(customer.customerId).subscribe(() => {
       this.loadCustomers();
     });
-  }
-
-  onPageChange(page: number): void {
-    this.currentPage = page;
-    this.loadCustomers();
   }
 
   toggleCustomerActivation(customer: Customer): void {
