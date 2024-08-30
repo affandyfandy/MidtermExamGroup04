@@ -123,10 +123,10 @@ export class ProductService {
   importProducts(file: File): Observable<any> {
     const formData = new FormData();
     formData.append('file', file);
-
     return this.http.post<any>(`${baseUrl}/import`, formData, {
+      observe: 'events',
       reportProgress: true,
-      observe: 'events'
+      responseType: 'text' as 'json'
     });
   }
 
