@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { AppConstants } from "../config/app.constants";
-import { HttpClient, HttpParams } from "@angular/common/http";
+import { HttpClient, HttpEvent, HttpHeaders, HttpRequest, HttpParams } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { Product, ProductResponse } from "../models/product.model";
 
@@ -113,6 +113,21 @@ export class ProductService {
     }
 
     return this.http.get<ProductResponse>(`${baseUrl}/search`, { params });
+  }
+
+  /**
+   * Imports products from an Excel file.
+   * @param file - The Excel file to upload.
+   * @returns An observable of the import response.
+   */
+  importProducts(file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http.post<any>(`${baseUrl}/import`, formData, {
+      reportProgress: true,
+      observe: 'events'
+    });
   }
 
 }

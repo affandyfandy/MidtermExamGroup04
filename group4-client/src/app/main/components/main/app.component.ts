@@ -5,6 +5,7 @@ import { SidebarComponent } from '../sidebar/sidebar.component';
 import { filter } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 import { FooterComponent } from '../footer/footer.component';
+import { ToastComponent } from '../toast/toast.component';
 
 @Component({
   selector: 'app-root',
@@ -12,9 +13,9 @@ import { FooterComponent } from '../footer/footer.component';
   imports: [
     CommonModule,
     RouterOutlet,
-    ProductListComponent,
     SidebarComponent,
-    FooterComponent
+    FooterComponent,
+    ToastComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
